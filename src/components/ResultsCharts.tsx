@@ -41,26 +41,28 @@ function burdenColor(percent: number) {
 
 interface ResultsChartsProps {
   categories: CategoryResult[];
+  printMode?: boolean;
 }
 
-export function ResultsCharts({ categories }: ResultsChartsProps) {
-  const isMobile = useMediaQuery("(max-width: 639px)");
-  const isTablet = useMediaQuery("(max-width: 1023px)");
+export function ResultsCharts({ categories, printMode = false }: ResultsChartsProps) {
+  const isMobile = useMediaQuery("(max-width: 639px)") && !printMode;
+  const isTablet = useMediaQuery("(max-width: 1023px)") && !printMode;
 
-  const chartHeight = isMobile ? 260 : isTablet ? 300 : 320;
-  const radarRadius = isMobile ? "62%" : "75%";
-  const pieInner = isMobile ? 40 : 55;
-  const pieOuter = isMobile ? 72 : 95;
+  const chartHeight = printMode ? 280 : isMobile ? 260 : isTablet ? 300 : 320;
+  const radarRadius = printMode ? "70%" : isMobile ? "62%" : "75%";
+  const pieInner = printMode ? 50 : isMobile ? 40 : 55;
+  const pieOuter = printMode ? 88 : isMobile ? 72 : 95;
+  const showPieLabels = printMode || !isMobile;
 
   const radarData = categories.map((c) => ({
-    subject: isMobile ? c.name.split(" ")[0].slice(0, 6) : c.name.split(" ")[0],
+    subject: printMode || !isMobile ? c.name.split(" ")[0] : c.name.split(" ")[0].slice(0, 6),
     fullName: c.name,
     burden: Math.round(c.percent),
     fullMark: 100,
   }));
 
   const barData = categories.map((c) => ({
-    name: isMobile ? c.name.split(" ")[0].slice(0, 5) : c.name.split(" ")[0],
+    name: printMode || !isMobile ? c.name.split(" ")[0] : c.name.split(" ")[0].slice(0, 5),
     fullName: c.name,
     percent: Math.round(c.percent),
     score: c.score,
@@ -79,16 +81,16 @@ export function ResultsCharts({ categories }: ResultsChartsProps) {
   }
 
   return (
-    <div className="space-y-8 sm:space-y-10 lg:space-y-12">
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-10">
-        <div className="glass-card min-w-0 p-4 sm:p-6 md:p-8">
+    <div className="results-charts space-y-8 sm:space-y-10 lg:space-y-12">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-10 print:grid-cols-2 print:gap-6">
+        <div className="glass-card print-avoid-break min-w-0 p-4 sm:p-6 md:p-8 print:p-5">
           <h3 className="mb-2 text-base font-semibold text-[#1e3a5f] sm:text-lg">
             Body Systems Radar
           </h3>
           <p className="mb-4 text-xs text-sky-700 sm:mb-6 sm:text-sm">
             Symptom burden across all 8 systems
           </p>
-          <div style={{ width: "100%", height: chartHeight }}>
+          <div className="print-chart" style={{ width: "100%", height: chartHeight }}>
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={radarData} cx="50%" cy="50%" outerRadius={radarRadius}>
                 <PolarGrid stroke="#bae6fd" />
@@ -108,6 +110,7 @@ export function ResultsCharts({ categories }: ResultsChartsProps) {
                   fill="#06b6d4"
                   fillOpacity={0.45}
                   strokeWidth={2}
+                  isAnimationActive={!printMode}
                 />
                 <Tooltip
                   formatter={(v) => [`${v}%`, "Burden"]}
@@ -121,14 +124,14 @@ export function ResultsCharts({ categories }: ResultsChartsProps) {
           </div>
         </div>
 
-        <div className="glass-card min-w-0 p-4 sm:p-6 md:p-8">
+        <div className="glass-card print-avoid-break min-w-0 p-4 sm:p-6 md:p-8 print:p-5">
           <h3 className="mb-2 text-base font-semibold text-[#1e3a5f] sm:text-lg">
             Score Distribution
           </h3>
           <p className="mb-4 text-xs text-sky-700 sm:text-sm">
             Where your points accumulate
           </p>
-          <div style={{ width: "100%", height: chartHeight }}>
+          <div className="print-chart" style={{ width: "100%", height: chartHeight }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -139,10 +142,11 @@ export function ResultsCharts({ categories }: ResultsChartsProps) {
                   outerRadius={pieOuter}
                   paddingAngle={3}
                   dataKey="value"
-                  label={isMobile ? false : ({ name, percent }) =>
+                  isAnimationActive={!printMode}
+                  label={showPieLabels ? ({ name, percent }) =>
                     `${name} ${((percent ?? 0) * 100).toFixed(0)}%`
-                  }
-                  labelLine={isMobile ? false : { stroke: "#64748b", strokeWidth: 1 }}
+                  : false}
+                  labelLine={showPieLabels ? { stroke: "#64748b", strokeWidth: 1 } : false}
                 >
                   {pieData.map((entry, index) => (
                     <Cell key={`pie-${index}`} fill={entry.fill} />
@@ -156,16 +160,24 @@ export function ResultsCharts({ categories }: ResultsChartsProps) {
         </div>
       </div>
 
-      <div className="glass-card min-w-0 p-4 sm:p-6 md:p-8">
+      <div className="glass-card print-avoid-break min-w-0 p-4 sm:p-6 md:p-8 print:p-5">
         <h3 className="mb-2 text-base font-semibold text-[#1e3a5f] sm:text-lg">
           Category Comparison
         </h3>
         <p className="mb-4 text-xs text-sky-700 sm:text-sm">Burden % per body system</p>
-        <div style={{ width: "100%", height: chartHeight + (isMobile ? 40 : 20) }}>
+        <div
+          className="print-chart"
+          style={{ width: "100%", height: chartHeight + (printMode ? 20 : isMobile ? 40 : 20) }}
+        >
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={barData}
-              margin={{ top: 8, right: 4, left: isMobile ? -20 : 0, bottom: isMobile ? 56 : 40 }}
+              margin={{
+                top: 8,
+                right: 4,
+                left: printMode ? 0 : isMobile ? -20 : 0,
+                bottom: printMode ? 40 : isMobile ? 56 : 40,
+              }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#e0f2fe" />
               <XAxis
@@ -189,7 +201,7 @@ export function ResultsCharts({ categories }: ResultsChartsProps) {
                   ""
                 }
               />
-              <Bar dataKey="percent" radius={[6, 6, 0, 0]} name="Burden %">
+              <Bar dataKey="percent" radius={[6, 6, 0, 0]} name="Burden %" isAnimationActive={!printMode}>
                 {barData.map((entry, index) => (
                   <Cell
                     key={`bar-${index}`}

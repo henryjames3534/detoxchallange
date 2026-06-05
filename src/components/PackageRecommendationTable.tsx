@@ -23,9 +23,9 @@ export function PackageRecommendationTable({
   const recommended = getRecommendedPackage(grandTotal);
 
   return (
-    <section className="w-full">
-      <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold text-[#1e3a5f] sm:text-3xl">
+    <section className="package-recommendation w-full">
+      <div className="mb-8 text-center print:mb-4">
+        <h2 className="text-2xl font-bold text-[#1e3a5f] sm:text-3xl print:text-xl">
           Package by Point Count and Toxic Level
         </h2>
         <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-gradient-to-r from-cyan-500 to-teal-600" />

@@ -173,3 +173,20 @@ export const TOTAL_QUESTIONS = CATEGORIES.reduce(
 export function getCategoryTestLabel(name: string): string {
   return `${name} Test`;
 }
+
+export function getFirstUnansweredQuestionIndex(
+  category: Category,
+  scores: Record<string, Record<string, SymptomFrequency>>,
+): number | null {
+  const catScores = scores[category.id] ?? {};
+  const index = category.questions.findIndex((q) => !(q.id in catScores));
+  return index >= 0 ? index : null;
+}
+
+export function getMissedQuestionCount(
+  category: Category,
+  scores: Record<string, Record<string, SymptomFrequency>>,
+): number {
+  const catScores = scores[category.id] ?? {};
+  return category.questions.filter((q) => !(q.id in catScores)).length;
+}

@@ -18,12 +18,15 @@ import { DietRecommendations } from "@/components/DietRecommendations";
 import { PackageRecommendationTable } from "@/components/PackageRecommendationTable";
 import { loadResults, clearChallengeData } from "@/lib/storage";
 import { getToxicLevelColor } from "@/lib/scoring";
+import { usePrintMode } from "@/hooks/usePrintMode";
+import headerLogo from "@/assets/acuactiv-logo.png";
 
 export function ResultsClient() {
   const [results, setResults] = useState(
     null as ReturnType<typeof loadResults>,
   );
   const [mounted, setMounted] = useState(false);
+  const { printMode, printDocument } = usePrintMode();
 
   useEffect(() => {
     setResults(loadResults());
@@ -64,11 +67,23 @@ export function ResultsClient() {
 
   return (
     <PageShell wide>
-      <div className="flex w-full flex-col gap-8 sm:gap-10 print:py-2">
+      <div className="results-print-document flex w-full flex-col gap-8 sm:gap-10 print:gap-6 print:py-0">
+        <div className="hidden print:mb-4 print:flex print:items-center print:justify-between print:border-b print:border-sky-200 print:pb-4">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={headerLogo.src}
+            alt="AcuActiv"
+            className="h-10 w-auto"
+          />
+          <p className="text-sm font-medium text-sky-700">
+            Detox Assessment Report
+          </p>
+        </div>
+
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="overflow-hidden rounded-2xl border border-sky-200/60 bg-gradient-to-r from-[#1e3a5f] to-cyan-800 p-6 text-center text-white shadow-lg sm:p-8 md:p-10"
+          className="results-print-hero print-avoid-break overflow-hidden rounded-2xl border border-sky-200/60 bg-gradient-to-r from-[#1e3a5f] to-cyan-800 p-6 text-center text-white shadow-lg sm:p-8 md:p-10 print:rounded-xl print:p-6 print:shadow-none"
         >
           <span className="mb-2 inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-xs font-medium backdrop-blur">
             <CheckCircle2 className="h-3.5 w-3.5" />
@@ -81,8 +96,8 @@ export function ResultsClient() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
-          <GlassCard className="text-center sm:text-left">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 print:grid-cols-2 print:gap-4">
+          <GlassCard className="print-avoid-break text-center sm:text-left">
             <p className="text-xs font-bold uppercase tracking-wider text-sky-600">
               Grand Total
             </p>
@@ -94,7 +109,7 @@ export function ResultsClient() {
             </p>
           </GlassCard>
 
-          <GlassCard>
+          <GlassCard className="print-avoid-break">
             <p className="text-xs font-bold uppercase tracking-wider text-sky-600">
               Toxic Burden
             </p>
@@ -122,7 +137,7 @@ export function ResultsClient() {
         </div>
 
         {/* Category progress bars */}
-        <GlassCard>
+        <GlassCard className="print-avoid-break">
           <h2 className="mb-6 text-xl font-semibold text-[#1e3a5f]">
             System Breakdown
           </h2>
@@ -146,21 +161,21 @@ export function ResultsClient() {
           </div>
         </GlassCard>
 
-        <div className="print:break-before-auto">
-          <h2 className="mb-8 text-center text-2xl font-bold text-[#1e3a5f] sm:text-3xl">
+        <div className="print-section-break print-avoid-break">
+          <h2 className="mb-8 text-center text-2xl font-bold text-[#1e3a5f] sm:text-3xl print:mb-4 print:text-xl">
             📊 Visual Analytics
           </h2>
-          <ResultsCharts categories={results.categories} />
+          <ResultsCharts categories={results.categories} printMode={printMode} />
         </div>
 
-        <div>
-          <h2 className="mb-8 text-center text-2xl font-bold text-[#1e3a5f] sm:text-3xl">
+        <div className="print-section-break">
+          <h2 className="mb-8 text-center text-2xl font-bold text-[#1e3a5f] sm:text-3xl print:mb-4 print:text-xl">
             🥗 Your Detox Diet & Recommendations
           </h2>
           <DietRecommendations results={results} />
         </div>
 
-        <GlassCard className="overflow-hidden p-4 sm:p-6 md:p-8">
+        <GlassCard className="print-section-break print-avoid-break overflow-hidden p-4 sm:p-6 md:p-8 print:p-5">
           <PackageRecommendationTable
             grandTotal={results.grandTotal}
             toxicLevelPercent={results.toxicLevelPercent}
@@ -168,7 +183,7 @@ export function ResultsClient() {
           />
         </GlassCard>
 
-        <GlassCard className="border-amber-200/80 bg-amber-50/50">
+        <GlassCard className="print-avoid-break border-amber-200/80 bg-amber-50/50">
           <p className="font-semibold text-amber-950">Medical disclaimer</p>
           <p className="mt-3 text-sm leading-relaxed text-amber-900/90">
             Diet suggestions are educational and do not replace care from Dr.
@@ -188,9 +203,9 @@ export function ResultsClient() {
               Home
             </Button>
           </Link>
-          <Button variant="secondary" fullWidth className="sm:w-auto" onClick={() => window.print()}>
+          <Button variant="secondary" fullWidth className="sm:w-auto" onClick={printDocument}>
             <Download className="h-4 w-4" />
-            Save / Print
+            Save / Print PDF
           </Button>
           <Button variant="ghost" fullWidth className="sm:w-auto" onClick={handleRestart}>
             <RotateCcw className="h-4 w-4" />

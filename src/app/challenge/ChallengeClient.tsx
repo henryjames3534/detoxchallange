@@ -12,7 +12,7 @@ import { PersonalInfoForm } from "@/components/PersonalInfoForm";
 import { QuestionCard } from "@/components/QuestionCard";
 import { CategoryPills } from "@/components/CategoryPills";
 import { CategoryTestStartBanner } from "@/components/CategoryTestStartBanner";
-import { CATEGORIES, TOTAL_QUESTIONS, getCategoryTestLabel } from "@/lib/questionnaire";
+import { CATEGORIES, TOTAL_QUESTIONS, getCategoryTestLabel, getFirstUnansweredQuestionIndex, getMissedQuestionCount } from "@/lib/questionnaire";
 import { computeResults } from "@/lib/scoring";
 import { saveAnswers, saveResults } from "@/lib/storage";
 import type {
@@ -166,6 +166,25 @@ export function ChallengeClient() {
 
   const allAnswered = answeredCount === TOTAL_QUESTIONS;
 
+  const firstMissedLocation = useMemo(() => {
+    for (let i = 0; i < CATEGORIES.length; i++) {
+      const questionIndex = getFirstUnansweredQuestionIndex(CATEGORIES[i], scores);
+      if (questionIndex !== null) {
+        return { categoryIndex: i, questionIndex };
+      }
+    }
+    return null;
+  }, [scores]);
+
+  const goToMissedQuestion = useCallback(
+    (targetCategoryIndex: number, targetQuestionIndex: number) => {
+      setStep("questionnaire");
+      setCategoryIndex(targetCategoryIndex);
+      setQuestionIndex(targetQuestionIndex);
+    },
+    [],
+  );
+
   const introCategory =
     activeIntroCategoryId != null
       ? CATEGORIES.find((c) => c.id === activeIntroCategoryId)
@@ -296,34 +315,72 @@ export function ChallengeClient() {
               </div>
               <GlassCard>
                 <div className="mb-8 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                  {CATEGORIES.map((cat) => {
+                  {CATEGORIES.map((cat, catIndex) => {
                     const catScores = scores[cat.id] ?? {};
                     const count = Object.keys(catScores).length;
-                    const complete = count === cat.questions.length;
+                    const missedCount = getMissedQuestionCount(cat, scores);
+                    const complete = missedCount === 0;
+                    const firstMissed = getFirstUnansweredQuestionIndex(cat, scores);
+
                     return (
                       <div
                         key={cat.id}
-                        className={`flex items-center justify-between rounded-xl px-5 py-4 ${
+                        className={`rounded-xl px-5 py-4 ${
                           complete
                             ? "bg-emerald-50 text-emerald-900"
-                            : "bg-amber-50 text-amber-900"
+                            : "border border-amber-200 bg-amber-50 text-amber-900"
                         }`}
                       >
-                        <span className="text-sm font-medium sm:text-base">
-                          {getCategoryTestLabel(cat.name)}
-                        </span>
-                        <span className="text-sm">
-                          {count}/{cat.questions.length}
-                        </span>
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-sm font-medium sm:text-base">
+                            {getCategoryTestLabel(cat.name)}
+                          </span>
+                          <span className="shrink-0 text-sm font-semibold">
+                            {count}/{cat.questions.length}
+                          </span>
+                        </div>
+                        {!complete && firstMissed !== null && (
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            fullWidth
+                            className="mt-3 border-amber-300 bg-white text-amber-950 hover:bg-amber-100"
+                            onClick={() =>
+                              goToMissedQuestion(catIndex, firstMissed)
+                            }
+                          >
+                            Answer missed question
+                            {missedCount > 1 ? `s (${missedCount})` : ""}
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     );
                   })}
                 </div>
                 {!allAnswered && (
-                  <p className="mb-6 text-center text-sm leading-relaxed text-amber-700">
-                    Some questions are unanswered. Go back to complete them for
-                    the most accurate results.
-                  </p>
+                  <div className="mb-6 space-y-4">
+                    <p className="text-center text-sm leading-relaxed text-amber-700">
+                      Some questions are unanswered. Go back to complete them for
+                      the most accurate results.
+                    </p>
+                    {firstMissedLocation && (
+                      <div className="flex justify-center">
+                        <Button
+                          variant="secondary"
+                          onClick={() =>
+                            goToMissedQuestion(
+                              firstMissedLocation.categoryIndex,
+                              firstMissedLocation.questionIndex,
+                            )
+                          }
+                        >
+                          Go to first missed question
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 )}
                 <div className="flex flex-col gap-4 sm:flex-row sm:gap-5">
                   <Button variant="secondary" onClick={goPrev} className="sm:min-w-[180px]">
