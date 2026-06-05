@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AcuActiv Detox Challenge (Enhanced)
 
-## Getting Started
+Professional rebuild of the [AcuActiv Detox Challenge](https://detox.acuactiv.com/) — a multi-step symptom assessment that calculates toxic burden across 8 body systems.
 
-First, run the development server:
+## Features
+
+- **Landing page** with program overview and CTA
+- **Personal information** form (imperial/metric height & weight)
+- **63-question questionnaire** across 8 categories with 5-point frequency scale
+- **Step-by-step wizard** with progress tracking and category pills
+- **Review screen** before submission
+- **Results dashboard** with grand total, toxic burden %, bar chart, and category breakdown
+- **Print / save** results
+- **Legacy URL redirects** (`/callenge-question` → `/challenge`)
+- Optional webhook for email/API integration
+
+## Scoring (matches original)
+
+| Score | Meaning |
+|-------|---------|
+| 0 | Never or almost never |
+| 1 | Occasionally |
+| 2 | Occasionally, severe effect |
+| 3 | Frequently, not severe |
+| 4 | Frequently, severe |
+
+**Max total:** 252 points · **Toxic level:** `(grandTotal / 252) × 100%`
+
+## Run locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+Set `DETOX_EMAIL_WEBHOOK` in production to forward submissions to your backend.
 
-To learn more about Next.js, take a look at the following resources:
+## Stack
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Next.js 15 (App Router)
+- TypeScript
+- Tailwind CSS
+- Framer Motion
+- Recharts
+- React Hook Form + Zod
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Credit
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+All rights reserved to **Dr. Shlomi Gavish DOM, AP** — AcuActiv Medical Detoxification Program.

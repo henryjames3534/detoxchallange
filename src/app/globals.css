@@ -1,26 +1,84 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f0f9ff;
+  --foreground: #0c4a6e;
+  --brand-blue: #1e3a5f;
+  --brand-teal: #009698;
+  --brand-cyan: #06b6d4;
+  --brand-sky: #38bdf8;
+  --glass-bg: rgba(255, 255, 255, 0.78);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-fraunces), Georgia, serif;
+}
+
+.page-bg {
+  overflow-x: hidden;
+  background: linear-gradient(
+    165deg,
+    #f8fcff 0%,
+    #e0f2fe 35%,
+    #f0fdfa 70%,
+    #ecfeff 100%
+  );
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  box-shadow:
+    0 4px 24px rgba(14, 116, 144, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.9) inset;
+}
+
+.pill-btn {
+  border-radius: 9999px;
+  border: 2px solid var(--brand-teal);
+  padding: 0.5rem 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.emoji-option {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.emoji-option:hover {
+  transform: translateY(-2px);
+}
+
+.emoji-option-selected {
+  transform: scale(1.03);
+  box-shadow: 0 8px 24px rgba(13, 148, 136, 0.25);
+}
+
+@media print {
+  header,
+  footer,
+  .print\:hidden {
+    display: none !important;
+  }
+  .page-bg {
+    background: white;
+  }
 }
