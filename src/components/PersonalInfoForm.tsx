@@ -1,27 +1,14 @@
 "use client";
 
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "./Button";
 import type { PersonalInfo } from "@/lib/types";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
-const schema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  email: z.string().email("Valid email is required"),
-  phone: z.string().min(7, "Phone number is required"),
-  dateOfBirth: z.string().min(1, "Date of birth is required"),
-  testDate: z.string().min(1, "Test date is required"),
-  unitSystem: z.enum(["imperial", "metric"]),
-  heightFeet: z.number().optional(),
-  heightInches: z.number().optional(),
-  heightCm: z.number().optional(),
-  weightLbs: z.number().optional(),
-  weightKg: z.number().optional(),
-});
-
-type FormData = z.infer<typeof schema>;
+type FormData = PersonalInfo;
 
 interface PersonalInfoFormProps {
   defaultValues?: Partial<PersonalInfo>;
@@ -37,6 +24,27 @@ export function PersonalInfoForm({
   defaultValues,
   onSubmit,
 }: PersonalInfoFormProps) {
+  const { t } = useLanguage();
+
+  const schema = useMemo(
+    () =>
+      z.object({
+        firstName: z.string().min(1, t.form.errors.firstName),
+        lastName: z.string().min(1, t.form.errors.lastName),
+        email: z.string().email(t.form.errors.email),
+        phone: z.string().min(7, t.form.errors.phone),
+        dateOfBirth: z.string().min(1, t.form.errors.dateOfBirth),
+        testDate: z.string().min(1, t.form.errors.testDate),
+        unitSystem: z.enum(["imperial", "metric"]),
+        heightFeet: z.number().optional(),
+        heightInches: z.number().optional(),
+        heightCm: z.number().optional(),
+        weightLbs: z.number().optional(),
+        weightKg: z.number().optional(),
+      }),
+    [t],
+  );
+
   const {
     register,
     handleSubmit,
@@ -55,40 +63,40 @@ export function PersonalInfoForm({
 
   return (
     <form
-      onSubmit={handleSubmit((data) => onSubmit(data as PersonalInfo))}
+      onSubmit={handleSubmit((data) => onSubmit(data))}
       className="space-y-8"
     >
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
         <div>
-          <label className={labelClass}>First Name</label>
+          <label className={labelClass}>{t.form.firstName}</label>
           <input className={inputClass} {...register("firstName")} />
           {errors.firstName && (
             <p className="mt-1 text-sm text-red-600">{errors.firstName.message}</p>
           )}
         </div>
         <div>
-          <label className={labelClass}>Last Name</label>
+          <label className={labelClass}>{t.form.lastName}</label>
           <input className={inputClass} {...register("lastName")} />
           {errors.lastName && (
             <p className="mt-1 text-sm text-red-600">{errors.lastName.message}</p>
           )}
         </div>
         <div>
-          <label className={labelClass}>Email</label>
+          <label className={labelClass}>{t.form.email}</label>
           <input type="email" className={inputClass} {...register("email")} />
           {errors.email && (
             <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
           )}
         </div>
         <div>
-          <label className={labelClass}>Phone</label>
+          <label className={labelClass}>{t.form.phone}</label>
           <input type="tel" className={inputClass} {...register("phone")} />
           {errors.phone && (
             <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>
           )}
         </div>
         <div>
-          <label className={labelClass}>Date of Birth</label>
+          <label className={labelClass}>{t.form.dateOfBirth}</label>
           <input type="date" className={inputClass} {...register("dateOfBirth")} />
           {errors.dateOfBirth && (
             <p className="mt-1 text-sm text-red-600">
@@ -97,7 +105,7 @@ export function PersonalInfoForm({
           )}
         </div>
         <div>
-          <label className={labelClass}>Test Date</label>
+          <label className={labelClass}>{t.form.testDate}</label>
           <input type="date" className={inputClass} {...register("testDate")} />
           {errors.testDate && (
             <p className="mt-1 text-sm text-red-600">{errors.testDate.message}</p>
@@ -106,7 +114,7 @@ export function PersonalInfoForm({
       </div>
 
       <div>
-        <label className={labelClass}>Measurement System</label>
+        <label className={labelClass}>{t.form.measurementSystem}</label>
         <div className="flex flex-wrap gap-6 pt-1">
           <label className="flex cursor-pointer items-center gap-2">
             <input
@@ -115,7 +123,7 @@ export function PersonalInfoForm({
               {...register("unitSystem")}
               className="text-teal-600"
             />
-            <span className="text-sm text-slate-700">U.S. (Imperial)</span>
+            <span className="text-sm text-slate-700">{t.form.imperial}</span>
           </label>
           <label className="flex cursor-pointer items-center gap-2">
             <input
@@ -124,7 +132,7 @@ export function PersonalInfoForm({
               {...register("unitSystem")}
               className="text-teal-600"
             />
-            <span className="text-sm text-slate-700">Metric</span>
+            <span className="text-sm text-slate-700">{t.form.metric}</span>
           </label>
         </div>
       </div>
@@ -132,7 +140,7 @@ export function PersonalInfoForm({
       {unitSystem === "imperial" ? (
         <div className="grid gap-6 sm:grid-cols-3">
           <div>
-            <label className={labelClass}>Feet</label>
+            <label className={labelClass}>{t.form.feet}</label>
             <input
               type="number"
               min={0}
@@ -141,7 +149,7 @@ export function PersonalInfoForm({
             />
           </div>
           <div>
-            <label className={labelClass}>Inches</label>
+            <label className={labelClass}>{t.form.inches}</label>
             <input
               type="number"
               min={0}
@@ -151,7 +159,7 @@ export function PersonalInfoForm({
             />
           </div>
           <div>
-            <label className={labelClass}>Pounds</label>
+            <label className={labelClass}>{t.form.pounds}</label>
             <input
               type="number"
               min={0}
@@ -163,7 +171,7 @@ export function PersonalInfoForm({
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
           <div>
-            <label className={labelClass}>Height (cm)</label>
+            <label className={labelClass}>{t.form.heightCm}</label>
             <input
               type="number"
               min={0}
@@ -172,7 +180,7 @@ export function PersonalInfoForm({
             />
           </div>
           <div>
-            <label className={labelClass}>Weight (kg)</label>
+            <label className={labelClass}>{t.form.weightKg}</label>
             <input
               type="number"
               min={0}
@@ -184,7 +192,7 @@ export function PersonalInfoForm({
       )}
 
       <Button type="submit" size="lg" fullWidth className="mt-2">
-        Continue to Assessment
+        {t.form.continue}
       </Button>
     </form>
   );

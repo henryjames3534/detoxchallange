@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getCategoryBanner } from "@/lib/category-banners";
-import { getCategoryTestLabel } from "@/lib/questionnaire";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import type { Category } from "@/lib/types";
 
 const DURATION_MS = 5000;
@@ -19,6 +19,7 @@ export function CategoryTestStartBanner({
   open,
   onComplete,
 }: CategoryTestStartBannerProps) {
+  const { t, getCategoryTestLabel, getBannerSubtitle } = useLanguage();
   const banner = getCategoryBanner(category.id);
   const [progress, setProgress] = useState(0);
   const onCompleteRef = useRef(onComplete);
@@ -99,16 +100,16 @@ export function CategoryTestStartBanner({
               />
               <div className="absolute inset-0 flex flex-col items-center justify-end px-6 pb-8 pt-12 text-center text-white sm:px-8 sm:pb-10">
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-100/90 sm:text-sm">
-                  Starting next section
+                  {t.challenge.startingSection}
                 </p>
                 <h2
                   id="category-test-banner-title"
                   className="mt-2 font-serif text-3xl font-bold tracking-tight drop-shadow-md sm:text-4xl"
                 >
-                  {getCategoryTestLabel(category.name)}
+                  {getCategoryTestLabel(category.id)}
                 </h2>
                 <p className="mt-2 max-w-sm text-sm leading-relaxed text-white/90 sm:text-base">
-                  {banner.subtitle}
+                  {getBannerSubtitle(category.id) || banner.subtitle}
                 </p>
               </div>
             </div>
@@ -116,7 +117,7 @@ export function CategoryTestStartBanner({
             <div className="border-t border-sky-100 bg-gradient-to-r from-cyan-50 to-teal-50 px-6 py-4 sm:px-8 sm:py-5">
               <div className="flex items-center justify-between gap-4 text-sm">
                 <span className="font-medium text-sky-800">
-                  {category.questions.length} questions in this section
+                  {category.questions.length} {t.challenge.questionsInSection}
                 </span>
                 <span className="tabular-nums font-semibold text-teal-700">
                   {Math.max(0, Math.ceil(((100 - progress) / 100) * (DURATION_MS / 1000)))}s

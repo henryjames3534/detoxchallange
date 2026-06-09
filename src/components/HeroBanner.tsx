@@ -1,9 +1,14 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "./Button";
 import { FEATURE_VIDEO, HERO_VIDEO_POSTER } from "@/lib/videos";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 export function HeroBanner() {
+  const { t } = useLanguage();
+
   return (
     <section className="mx-auto w-full max-w-7xl px-3 sm:px-6 lg:px-8">
       <div className="overflow-hidden rounded-xl border border-sky-200/60 shadow-lg shadow-sky-900/20 sm:rounded-2xl md:rounded-3xl md:shadow-[0_24px_80px_-20px_rgba(0,150,152,0.35)]">
@@ -28,7 +33,7 @@ export function HeroBanner() {
 
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 px-4 sm:gap-5 sm:px-6">
             <h1 className="text-center font-serif text-3xl font-bold uppercase tracking-wide text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.65)] sm:text-4xl md:text-5xl">
-              Detox Challange
+              {t.hero.title}
             </h1>
             <Link href="/challenge" className="w-full max-w-xs sm:max-w-none sm:w-auto">
               <Button
@@ -37,7 +42,7 @@ export function HeroBanner() {
                 fullWidth
                 className="w-full border-2 border-[#009698] bg-white text-sm font-bold uppercase tracking-wide text-[#1e3a5f] shadow-xl hover:bg-teal-50 sm:min-w-[260px] sm:w-auto sm:px-10 sm:py-4 sm:text-base md:py-5 md:text-lg"
               >
-                Start Test
+                {t.hero.startTest}
                 <ArrowRight className="h-4 w-4 shrink-0 text-[#009698] sm:h-5 sm:w-5" />
               </Button>
             </Link>
@@ -45,15 +50,15 @@ export function HeroBanner() {
               href="/results"
               className="text-center text-xs font-semibold text-white underline-offset-4 drop-shadow-[0_1px_6px_rgba(0,0,0,0.8)] hover:text-cyan-100 hover:underline sm:text-sm"
             >
-              View previous results →
+              {t.hero.viewResults}
             </Link>
           </div>
         </div>
       </div>
 
       <p className="mt-4 px-2 text-center text-xs font-medium leading-relaxed text-sky-700/90 sm:mt-6 sm:text-sm">
-        ~15 min · 63 questions · 😊 to 😢
-        <span className="hidden sm:inline"> · Charts & diet recommendations</span>
+        {t.hero.meta}
+        <span className="hidden sm:inline">{t.hero.metaExtra}</span>
       </p>
     </section>
   );

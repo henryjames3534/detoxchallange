@@ -1,0 +1,108 @@
+export const questionnaireHt: Record<
+  string,
+  { name: string; questions: Record<string, string> }
+> = {
+  emotions: {
+    name: "Emosyon",
+    questions: {
+      e1: "Iritabilite?",
+      e2: "Nève?",
+      e3: "Chanjman imè?",
+      e4: "Kriye souvan?",
+      e5: "Konpòtman agresif (pa egzanp, kòlè pandan kondwi)?",
+      e6: "Anksyete?",
+      e7: "Laperèz?",
+      e8: "Konfizyon?",
+      e9: "Depresyon?",
+      e10: "Panse swisid?",
+    },
+  },
+  skin: {
+    name: "Po",
+    questions: {
+      s1: "Swe ki ogmante, sir zòrèy ki ogmante, oswa po gra?",
+      s2: "Gratèl sou po?",
+      s3: "Tach mawon sou men ak figi?",
+      s4: "Abse sou po?",
+      s5: "Ti veri ki pandye (skin tags)?",
+      s6: "Akne?",
+      s7: "Ekzema?",
+      s8: "Bouton lafyèv (herpes nan bouch)?",
+      s9: "Veri?",
+    },
+  },
+  ent: {
+    name: "Zòrèy, Nen ak Gòj",
+    questions: {
+      ent1: "Salivasyon ki ogmante?",
+      ent2: "Ilsè nan bouch?",
+      ent3: "Rim?",
+      ent4: "Sinizit?",
+      ent5: "Gòj fè mal?",
+      ent6: "Enfeksyon nan zòrèy?",
+      ent7: "Lafyèv zèb?",
+      ent8: "Pèdi sans sant?",
+      ent9: "Tous?",
+    },
+  },
+  brain: {
+    name: "Lespri ak Sèvo",
+    questions: {
+      b1: "Iperaktivite?",
+      b2: "Bege oswa difikilte pou jwenn mo?",
+      b3: "Difikilte pou konsantre?",
+      b4: "Difikilte pou pran desizyon?",
+      b5: "Maltèt?",
+      b6: "Move memwa?",
+      b7: "Move kowòdinasyon?",
+      b8: "Konpòtman konpilsif?",
+      b9: "Twoub dòmi?",
+      b10: "Pèt memwa?",
+    },
+  },
+  digestive: {
+    name: "Sistèm Dijestif",
+    questions: {
+      d1: "Poupou lach?",
+      d2: "Dyare?",
+      d3: "Brilur lestomak?",
+      d4: "Konstipasyon?",
+      d5: "Gonfleman?",
+      d6: "Doulè nan vant?",
+      d7: "Entolerans ak kèk manje?",
+      d8: "Kè plen oswa vomisman?",
+      d9: "Dyare grav ak san oswa glè?",
+    },
+  },
+  kidney: {
+    name: "Ren",
+    questions: {
+      k1: "Ogmantasyon frekans ak kantite pipi?",
+      k2: "Bezwen leve lannuit pou pipi?",
+      k3: "Enfeksyon aparèy urinè oswa sistit?",
+      k4: "Pyè nan ren?",
+      k5: "San nan pipi?",
+    },
+  },
+  joints: {
+    name: "Jwenti ak Misk",
+    questions: {
+      j1: "Doulè misk oswa jwenti ki deplase?",
+      j2: "Tandinite (koud tenis, koud gòlfè, tandinite tendon Achil)?",
+      j3: "Gout?",
+      j4: "Atrit?",
+      j5: "Fibromyalji?",
+    },
+  },
+  metabolism: {
+    name: "Metabolis",
+    questions: {
+      m1: "Sansasyon frèt?",
+      m2: "Ipoglisemi?",
+      m3: "Anvi fò pou kèk manje?",
+      m4: "Retansyon dlo?",
+      m5: "Obezite?",
+      m6: "Selilit?",
+    },
+  },
+};

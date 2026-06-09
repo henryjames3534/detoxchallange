@@ -12,7 +12,8 @@ import { PersonalInfoForm } from "@/components/PersonalInfoForm";
 import { QuestionCard } from "@/components/QuestionCard";
 import { CategoryPills } from "@/components/CategoryPills";
 import { CategoryTestStartBanner } from "@/components/CategoryTestStartBanner";
-import { CATEGORIES, TOTAL_QUESTIONS, getCategoryTestLabel, getFirstUnansweredQuestionIndex, getMissedQuestionCount } from "@/lib/questionnaire";
+import { TOTAL_QUESTIONS, getFirstUnansweredQuestionIndex, getMissedQuestionCount } from "@/lib/questionnaire";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import { computeResults } from "@/lib/scoring";
 import { saveAnswers, saveResults } from "@/lib/storage";
 import type {
@@ -25,6 +26,7 @@ type Step = "personal" | "questionnaire" | "review";
 
 export function ChallengeClient() {
   const router = useRouter();
+  const { t, categories, getCategoryTestLabel } = useLanguage();
   const [step, setStep] = useState<Step>("personal");
   const [personal, setPersonal] = useState<PersonalInfo | null>(null);
   const [scores, setScores] = useState<
@@ -39,7 +41,7 @@ export function ChallengeClient() {
     string | null
   >(null);
 
-  const currentCategory = CATEGORIES[categoryIndex];
+  const currentCategory = categories[categoryIndex];
   const currentQuestion = currentCategory?.questions[questionIndex];
 
   const handleCategoryIntroComplete = useCallback((categoryId: string) => {
@@ -82,17 +84,17 @@ export function ChallengeClient() {
 
   const answeredCount = useMemo(() => {
     let count = 0;
-    for (const cat of CATEGORIES) {
+    for (const cat of categories) {
       const catScores = scores[cat.id] ?? {};
       count += Object.keys(catScores).length;
     }
     return count;
-  }, [scores]);
+  }, [scores, categories]);
 
   const globalQuestionIndex = useMemo(() => {
     let idx = 0;
     for (let i = 0; i < categoryIndex; i++) {
-      idx += CATEGORIES[i].questions.length;
+      idx += categories[i].questions.length;
     }
     return idx + questionIndex + 1;
   }, [categoryIndex, questionIndex]);
@@ -119,7 +121,7 @@ export function ChallengeClient() {
     if (!currentCategory) return;
     if (questionIndex < currentCategory.questions.length - 1) {
       setQuestionIndex((i) => i + 1);
-    } else if (categoryIndex < CATEGORIES.length - 1) {
+    } else if (categoryIndex < categories.length - 1) {
       setCategoryIndex((i) => i + 1);
       setQuestionIndex(0);
     } else {
@@ -130,14 +132,14 @@ export function ChallengeClient() {
   const goPrev = () => {
     if (step === "review") {
       setStep("questionnaire");
-      setCategoryIndex(CATEGORIES.length - 1);
-      setQuestionIndex(CATEGORIES[CATEGORIES.length - 1].questions.length - 1);
+      setCategoryIndex(categories.length - 1);
+      setQuestionIndex(categories[categories.length - 1].questions.length - 1);
       return;
     }
     if (questionIndex > 0) {
       setQuestionIndex((i) => i - 1);
     } else if (categoryIndex > 0) {
-      const prevCat = CATEGORIES[categoryIndex - 1];
+      const prevCat = categories[categoryIndex - 1];
       setCategoryIndex((i) => i - 1);
       setQuestionIndex(prevCat.questions.length - 1);
     } else {
@@ -197,14 +199,14 @@ export function ChallengeClient() {
   const allAnswered = answeredCount === TOTAL_QUESTIONS;
 
   const firstMissedLocation = useMemo(() => {
-    for (let i = 0; i < CATEGORIES.length; i++) {
-      const questionIndex = getFirstUnansweredQuestionIndex(CATEGORIES[i], scores);
+    for (let i = 0; i < categories.length; i++) {
+      const questionIndex = getFirstUnansweredQuestionIndex(categories[i], scores);
       if (questionIndex !== null) {
         return { categoryIndex: i, questionIndex };
       }
     }
     return null;
-  }, [scores]);
+  }, [scores, categories]);
 
   const goToMissedQuestion = useCallback(
     (targetCategoryIndex: number, targetQuestionIndex: number) => {
@@ -217,7 +219,7 @@ export function ChallengeClient() {
 
   const introCategory =
     activeIntroCategoryId != null
-      ? CATEGORIES.find((c) => c.id === activeIntroCategoryId)
+      ? categories.find((c) => c.id === activeIntroCategoryId)
       : undefined;
 
   return (
@@ -241,13 +243,13 @@ export function ChallengeClient() {
               <div className="w-full text-center">
                 <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-5 py-2 text-sm font-medium text-teal-800">
                   <User className="h-4 w-4" />
-                  Step 1 of 2
+                  {t.challenge.step1}
                 </span>
                 <h1 className="text-2xl font-bold tracking-tight text-[#1e3a5f] sm:text-3xl">
-                  Personal Information
+                  {t.challenge.personalTitle}
                 </h1>
                 <p className="mt-3 text-base leading-relaxed text-sky-700">
-                  Tell us about yourself before starting the detox assessment.
+                  {t.challenge.personalSubtitle}
                 </p>
               </div>
               <GlassCard className="w-full">
@@ -271,13 +273,13 @@ export function ChallengeClient() {
               <div className="w-full">
                 <span className="mb-4 inline-flex items-center gap-2.5 rounded-full border-2 border-cyan-200 bg-cyan-50 px-6 py-2.5 text-base font-semibold text-cyan-900 sm:gap-3 sm:px-7 sm:py-3 sm:text-lg md:text-xl">
                   <ClipboardList className="h-5 w-5 shrink-0 sm:h-6 sm:w-6" />
-                  {getCategoryTestLabel(currentCategory.name)}
+                  {getCategoryTestLabel(currentCategory.id)}
                 </span>
                 <h1 className="text-lg font-bold text-[#1e3a5f] sm:text-xl md:text-2xl">
-                  Detox Challenge Questionnaire
+                  {t.challenge.questionnaireTitle}
                 </h1>
                 <p className="mt-3 text-base text-sky-700">
-                  Pick the face that matches how often you feel this symptom 😊→😢
+                  {t.challenge.questionnaireSubtitle}
                 </p>
               </div>
 
@@ -285,10 +287,10 @@ export function ChallengeClient() {
                 <ProgressBar
                   current={globalQuestionIndex}
                   total={TOTAL_QUESTIONS}
-                  label="Overall progress"
+                  label={t.challenge.overallProgress}
                 />
                 <CategoryPills
-                  categories={CATEGORIES}
+                  categories={categories}
                   activeIndex={categoryIndex}
                 />
               </div>
@@ -307,17 +309,17 @@ export function ChallengeClient() {
               <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:gap-5">
                 <Button variant="secondary" onClick={goPrev} className="sm:min-w-[140px]">
                   <ChevronLeft className="h-4 w-4" />
-                  Back
+                  {t.challenge.back}
                 </Button>
                 <Button
                   className="flex-1"
                   onClick={goNext}
                   disabled={!canProceed}
                 >
-                  {categoryIndex === CATEGORIES.length - 1 &&
+                  {categoryIndex === categories.length - 1 &&
                   questionIndex === currentCategory.questions.length - 1
-                    ? "Review answers"
-                    : "Next"}
+                    ? t.challenge.reviewAnswers
+                    : t.challenge.next}
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
@@ -333,16 +335,17 @@ export function ChallengeClient() {
             >
               <div className="w-full text-center">
                 <h1 className="text-2xl font-bold text-[#1e3a5f] sm:text-3xl">
-                  Ready to submit?
+                  {t.challenge.reviewTitle}
                 </h1>
                 <p className="mt-3 text-base text-sky-700">
-                  You&apos;ve answered {answeredCount} of {TOTAL_QUESTIONS}{" "}
-                  questions.
+                  {t.challenge.reviewProgress
+                    .replace("{answered}", String(answeredCount))
+                    .replace("{total}", String(TOTAL_QUESTIONS))}
                 </p>
               </div>
               <GlassCard>
                 <div className="mb-8 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                  {CATEGORIES.map((cat, catIndex) => {
+                  {categories.map((cat, catIndex) => {
                     const catScores = scores[cat.id] ?? {};
                     const count = Object.keys(catScores).length;
                     const missedCount = getMissedQuestionCount(cat, scores);
@@ -360,7 +363,7 @@ export function ChallengeClient() {
                       >
                         <div className="flex items-center justify-between gap-3">
                           <span className="text-sm font-medium sm:text-base">
-                            {getCategoryTestLabel(cat.name)}
+                            {getCategoryTestLabel(cat.id)}
                           </span>
                           <span className="shrink-0 text-sm font-semibold">
                             {count}/{cat.questions.length}
@@ -376,8 +379,12 @@ export function ChallengeClient() {
                               goToMissedQuestion(catIndex, firstMissed)
                             }
                           >
-                            Answer missed question
-                            {missedCount > 1 ? `s (${missedCount})` : ""}
+                            {missedCount > 1
+                              ? t.challenge.answerMissedPlural.replace(
+                                  "{count}",
+                                  String(missedCount),
+                                )
+                              : t.challenge.answerMissed}
                             <ChevronRight className="h-4 w-4" />
                           </Button>
                         )}
@@ -388,8 +395,7 @@ export function ChallengeClient() {
                 {!allAnswered && (
                   <div className="mb-6 space-y-4">
                     <p className="text-center text-sm leading-relaxed text-amber-700">
-                      Some questions are unanswered. Go back to complete them for
-                      the most accurate results.
+                      {t.challenge.reviewWarning}
                     </p>
                     {firstMissedLocation && (
                       <div className="flex justify-center">
@@ -402,7 +408,7 @@ export function ChallengeClient() {
                             )
                           }
                         >
-                          Go to first missed question
+                          {t.challenge.goToFirstMissed}
                           <ChevronRight className="h-4 w-4" />
                         </Button>
                       </div>
@@ -412,14 +418,14 @@ export function ChallengeClient() {
                 <div className="flex flex-col gap-4 sm:flex-row sm:gap-5">
                   <Button variant="secondary" onClick={goPrev} className="sm:min-w-[180px]">
                     <ChevronLeft className="h-4 w-4" />
-                    Back to questions
+                    {t.challenge.backToQuestions}
                   </Button>
                   <Button
                     className="flex-1"
                     onClick={handleSubmit}
                     disabled={!allAnswered || submitting}
                   >
-                    {submitting ? "Submitting…" : "Submit & view results"}
+                    {submitting ? t.challenge.submitting : t.challenge.submit}
                   </Button>
                 </div>
               </GlassCard>

@@ -1,6 +1,6 @@
 "use client";
 
-import { getCategoryTestLabel } from "@/lib/questionnaire";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import { cn } from "@/lib/utils";
 
 interface CategoryPillsProps {
@@ -9,6 +9,8 @@ interface CategoryPillsProps {
 }
 
 export function CategoryPills({ categories, activeIndex }: CategoryPillsProps) {
+  const { getCategoryTestLabel } = useLanguage();
+
   return (
     <div className="relative -mx-1 sm:mx-0">
       <div className="overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] sm:overflow-visible sm:pb-0 [&::-webkit-scrollbar]:hidden">
@@ -25,7 +27,7 @@ export function CategoryPills({ categories, activeIndex }: CategoryPillsProps) {
                     : "bg-sky-100 text-sky-600",
               )}
             >
-              {getCategoryTestLabel(cat.name)}
+              {getCategoryTestLabel(cat.id)}
             </span>
           ))}
         </div>

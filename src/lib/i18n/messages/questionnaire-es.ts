@@ -1,0 +1,108 @@
+export const questionnaireEs: Record<
+  string,
+  { name: string; questions: Record<string, string> }
+> = {
+  emotions: {
+    name: "Emociones",
+    questions: {
+      e1: "¿Irritabilidad?",
+      e2: "¿Nerviosismo?",
+      e3: "¿Cambios de humor?",
+      e4: "¿Llanto frecuente?",
+      e5: "¿Comportamiento agresivo (p. ej., ira al volante)?",
+      e6: "¿Ansiedad?",
+      e7: "¿Miedo?",
+      e8: "¿Confusión?",
+      e9: "¿Depresión?",
+      e10: "¿Pensamientos suicidas?",
+    },
+  },
+  skin: {
+    name: "Piel",
+    questions: {
+      s1: "¿Aumento de sudoración, cerumen o piel grasa?",
+      s2: "¿Erupciones cutáneas?",
+      s3: "¿Manchas marrones en manos y rostro?",
+      s4: "¿Forúnculos?",
+      s5: "¿Acrocordones (verrugas colgantes pequeñas)?",
+      s6: "¿Acné?",
+      s7: "¿Eccema?",
+      s8: "¿Herpes labial?",
+      s9: "¿Verrugas?",
+    },
+  },
+  ent: {
+    name: "Oído, Nariz y Garganta",
+    questions: {
+      ent1: "¿Aumento de salivación?",
+      ent2: "¿Úlceras bucales?",
+      ent3: "¿Resfriado común?",
+      ent4: "¿Sinusitis?",
+      ent5: "¿Dolor de garganta?",
+      ent6: "¿Infecciones de oído?",
+      ent7: "¿Rinitis alérgica?",
+      ent8: "¿Pérdida del olfato?",
+      ent9: "¿Tos?",
+    },
+  },
+  brain: {
+    name: "Mente y Cerebro",
+    questions: {
+      b1: "¿Hiperactividad?",
+      b2: "¿Tartamudez o dificultad para encontrar palabras?",
+      b3: "¿Dificultad para concentrarse?",
+      b4: "¿Dificultad para tomar decisiones?",
+      b5: "¿Dolor de cabeza?",
+      b6: "¿Mala memoria?",
+      b7: "¿Mala coordinación?",
+      b8: "¿Comportamiento compulsivo?",
+      b9: "¿Alteraciones del sueño?",
+      b10: "¿Pérdida de memoria?",
+    },
+  },
+  digestive: {
+    name: "Sistema Digestivo",
+    questions: {
+      d1: "¿Heces blandas?",
+      d2: "¿Diarrea?",
+      d3: "¿Acidez estomacal?",
+      d4: "¿Estreñimiento?",
+      d5: "¿Distensión abdominal?",
+      d6: "¿Dolor abdominal?",
+      d7: "¿Intolerancia a ciertos alimentos?",
+      d8: "¿Náuseas o vómitos?",
+      d9: "¿Diarrea intensa con sangre o moco?",
+    },
+  },
+  kidney: {
+    name: "Riñón",
+    questions: {
+      k1: "¿Aumento de la frecuencia y cantidad de la micción?",
+      k2: "¿Necesidad de levantarse por la noche para orinar?",
+      k3: "¿Infecciones urinarias o cistitis?",
+      k4: "¿Cálculos renales?",
+      k5: "¿Sangre en la orina?",
+    },
+  },
+  joints: {
+    name: "Articulaciones y Músculos",
+    questions: {
+      j1: "¿Dolores musculares o articulares migratorios?",
+      j2: "¿Tendinitis (codo de tenista, codo de golfista, tendinitis de Aquiles)?",
+      j3: "¿Gota?",
+      j4: "¿Artritis?",
+      j5: "¿Fibromialgia?",
+    },
+  },
+  metabolism: {
+    name: "Metabolismo",
+    questions: {
+      m1: "¿Sensación de frío?",
+      m2: "¿Hipoglucemia?",
+      m3: "¿Antojo de ciertos alimentos?",
+      m4: "¿Retención de líquidos?",
+      m5: "¿Obesidad?",
+      m6: "¿Celulitis?",
+    },
+  },
+};

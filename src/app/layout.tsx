@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, Fraunces } from "next/font/google";
+import { AppProviders } from "@/components/AppProviders";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -43,8 +44,8 @@ export default function RootLayout({
       lang="en"
       className={`${dmSans.variable} ${fraunces.variable} h-full`}
     >
-      <body className="min-h-full overflow-x-hidden font-sans antialiased">
-        {children}
+      <body className="min-h-full overflow-x-hidden pb-12 font-sans antialiased">
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );

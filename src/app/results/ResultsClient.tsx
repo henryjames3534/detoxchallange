@@ -19,9 +19,11 @@ import { PackageRecommendationTable } from "@/components/PackageRecommendationTa
 import { loadResults, clearChallengeData } from "@/lib/storage";
 import { getToxicLevelColor } from "@/lib/scoring";
 import { usePrintMode } from "@/hooks/usePrintMode";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import headerLogo from "@/assets/acuactiv-logo.png";
 
 export function ResultsClient() {
+  const { t, getCategoryName, getToxicLabel } = useLanguage();
   const [results, setResults] = useState(
     null as ReturnType<typeof loadResults>,
   );
@@ -46,12 +48,10 @@ export function ResultsClient() {
       <PageShell>
         <div className="mx-auto flex max-w-lg flex-col items-center py-16 text-center">
           <AlertTriangle className="mb-4 h-12 w-12 text-amber-500" />
-          <h1 className="text-2xl font-bold text-[#1e3a5f]">No results found</h1>
-          <p className="mt-2 text-sky-700">
-            Complete the detox challenge to unlock charts and your diet plan.
-          </p>
+          <h1 className="text-2xl font-bold text-[#1e3a5f]">{t.results.noResults}</h1>
+          <p className="mt-2 text-sky-700">{t.results.noResultsHint}</p>
           <Link href="/challenge" className="mt-6">
-            <Button size="lg">Start Assessment</Button>
+            <Button size="lg">{t.results.startAssessment}</Button>
           </Link>
         </div>
       </PageShell>
@@ -76,7 +76,7 @@ export function ResultsClient() {
             className="h-10 w-auto"
           />
           <p className="text-sm font-medium text-sky-700">
-            Detox Assessment Report
+            {t.results.reportTitle}
           </p>
         </div>
 
@@ -87,9 +87,9 @@ export function ResultsClient() {
         >
           <span className="mb-2 inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-xs font-medium backdrop-blur">
             <CheckCircle2 className="h-3.5 w-3.5" />
-            Assessment Complete
+            {t.results.complete}
           </span>
-          <h1 className="mt-2 text-2xl font-bold sm:text-3xl">Your Detox Results</h1>
+          <h1 className="mt-2 text-2xl font-bold sm:text-3xl">{t.results.yourResults}</h1>
           <p className="mt-2 text-sm text-white/90">
             {results.personal.firstName} {results.personal.lastName} ·{" "}
             {new Date(results.completedAt).toLocaleDateString()}
@@ -99,7 +99,7 @@ export function ResultsClient() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 print:grid-cols-2 print:gap-4">
           <GlassCard className="print-avoid-break text-center sm:text-left">
             <p className="text-xs font-bold uppercase tracking-wider text-sky-600">
-              Grand Total
+              {t.results.grandTotal}
             </p>
             <p className="mt-3 text-4xl font-bold text-[#1e3a5f] sm:mt-4 sm:text-5xl">
               {results.grandTotal}
@@ -111,13 +111,13 @@ export function ResultsClient() {
 
           <GlassCard className="print-avoid-break">
             <p className="text-xs font-bold uppercase tracking-wider text-sky-600">
-              Toxic Burden
+              {t.results.toxicBurden}
             </p>
             <p className="mt-3 text-4xl font-bold sm:mt-4 sm:text-5xl" style={{ color: toxicColor }}>
               {results.toxicLevelPercent.toFixed(1)}%
             </p>
             <p className="font-semibold" style={{ color: toxicColor }}>
-              {results.toxicLevelLabel}
+              {getToxicLabel(results.toxicLevelPercent)}
             </p>
             <div className="mt-6 h-4 overflow-hidden rounded-full bg-sky-100">
               <div
@@ -130,8 +130,8 @@ export function ResultsClient() {
               />
             </div>
             <div className="mt-1 flex justify-between text-xs text-sky-500">
-              <span>😊 Low</span>
-              <span>😢 High</span>
+              <span>{t.results.low}</span>
+              <span>{t.results.high}</span>
             </div>
           </GlassCard>
         </div>
@@ -139,13 +139,15 @@ export function ResultsClient() {
         {/* Category progress bars */}
         <GlassCard className="print-avoid-break">
           <h2 className="mb-6 text-xl font-semibold text-[#1e3a5f]">
-            System Breakdown
+            {t.results.systemBreakdown}
           </h2>
           <div className="space-y-6">
             {results.categories.map((cat) => (
               <div key={cat.categoryId}>
                 <div className="mb-2 flex flex-col gap-0.5 text-sm sm:flex-row sm:justify-between sm:gap-4">
-                  <span className="font-medium text-sky-900">{cat.name}</span>
+                  <span className="font-medium text-sky-900">
+                    {getCategoryName(cat.categoryId, cat.name)}
+                  </span>
                   <span className="shrink-0 text-sky-600">
                     {cat.score}/{cat.maxScore} ({cat.percent.toFixed(0)}%)
                   </span>
@@ -163,14 +165,14 @@ export function ResultsClient() {
 
         <div className="print-section-break print-avoid-break">
           <h2 className="mb-8 text-center text-2xl font-bold text-[#1e3a5f] sm:text-3xl print:mb-4 print:text-xl">
-            📊 Visual Analytics
+            {t.results.visualAnalytics}
           </h2>
           <ResultsCharts categories={results.categories} printMode={printMode} />
         </div>
 
         <div className="print-section-break">
           <h2 className="mb-8 text-center text-2xl font-bold text-[#1e3a5f] sm:text-3xl print:mb-4 print:text-xl">
-            🥗 Your Detox Diet & Recommendations
+            {t.results.dietTitle}
           </h2>
           <DietRecommendations results={results} />
         </div>
@@ -184,11 +186,9 @@ export function ResultsClient() {
         </GlassCard>
 
         <GlassCard className="print-avoid-break border-amber-200/80 bg-amber-50/50">
-          <p className="font-semibold text-amber-950">Medical disclaimer</p>
+          <p className="font-semibold text-amber-950">{t.results.disclaimerTitle}</p>
           <p className="mt-3 text-sm leading-relaxed text-amber-900/90">
-            Diet suggestions are educational and do not replace care from Dr.
-            Shlomi Gavish DOM, AP. Detox products require an established patient
-            consultation.{" "}
+            {t.results.disclaimer}{" "}
             <a href="mailto:acuactiv@gmail.com" className="font-medium underline">
               acuactiv@gmail.com
             </a>{" "}
@@ -200,16 +200,16 @@ export function ResultsClient() {
           <Link href="/" className="w-full sm:w-auto">
             <Button variant="secondary" fullWidth className="sm:w-auto">
               <Home className="h-4 w-4" />
-              Home
+              {t.results.home}
             </Button>
           </Link>
           <Button variant="secondary" fullWidth className="sm:w-auto" onClick={printDocument}>
             <Download className="h-4 w-4" />
-            Save / Print PDF
+            {t.results.savePdf}
           </Button>
           <Button variant="ghost" fullWidth className="sm:w-auto" onClick={handleRestart}>
             <RotateCcw className="h-4 w-4" />
-            Retake
+            {t.results.retake}
           </Button>
         </div>
       </div>

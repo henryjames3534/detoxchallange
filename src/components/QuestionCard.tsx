@@ -1,7 +1,7 @@
 "use client";
 
-import { FREQUENCY_OPTIONS } from "@/lib/questionnaire";
 import type { SymptomFrequency } from "@/lib/types";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import { cn } from "@/lib/utils";
 
 interface QuestionCardProps {
@@ -19,13 +19,17 @@ export function QuestionCard({
   value,
   onChange,
 }: QuestionCardProps) {
+  const { t, frequencyOptions } = useLanguage();
+
   return (
     <article className="glass-card w-full min-w-0 rounded-2xl border border-sky-200/60 p-4 shadow-lg shadow-sky-900/5 sm:p-6 md:p-8">
       <div className="mb-5 flex flex-col gap-2 sm:mb-6 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <span className="w-fit rounded-full bg-gradient-to-r from-cyan-100 to-teal-100 px-3 py-1.5 text-xs font-bold text-teal-800 sm:px-4">
           Q{questionNumber} / {totalInCategory}
         </span>
-        <span className="text-xs text-sky-600 sm:text-sm">Tap how you feel</span>
+        <span className="text-xs text-sky-600 sm:text-sm">
+          {t.challenge.tapHowYouFeel}
+        </span>
       </div>
 
       <h3 className="mb-6 text-xl font-semibold leading-snug text-[#1e3a5f] sm:mb-8 sm:text-2xl">
@@ -33,13 +37,13 @@ export function QuestionCard({
       </h3>
 
       <div className="mb-6 flex flex-col gap-1 rounded-xl bg-sky-50 px-4 py-3 text-xs text-sky-700 sm:mb-8 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-5 sm:py-3.5 sm:text-sm">
-        <span>😊 Best</span>
-        <span className="text-sky-500 sm:text-center">symptom severity →</span>
-        <span className="sm:text-right">😢 Worst</span>
+        <span>{t.challenge.best}</span>
+        <span className="text-sky-500 sm:text-center">{t.challenge.severity}</span>
+        <span className="sm:text-right">{t.challenge.worst}</span>
       </div>
 
       <div className="flex flex-col gap-3 sm:gap-4">
-        {FREQUENCY_OPTIONS.map((option) => {
+        {frequencyOptions.map((option) => {
           const selected = value === option.value;
           return (
             <button
