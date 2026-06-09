@@ -6,6 +6,21 @@ import { getRecommendedPackage } from "@/lib/packages";
 const TEMPLATE_DIR = path.join(process.cwd(), "email-templates");
 const THANK_YOU_FILE = "email-template.html";
 const DOCTOR_NOTIFICATION_FILE = "doctor-notification.html";
+const INVOICE_FILE = "invoice-template.html";
+
+function formatSessionWhen(sessionDate: Date) {
+  return sessionDate.toLocaleString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+function getContactEmail() {
+  return process.env.DOCTOR_EMAIL ?? "info@acuactiv.com";
+}
 
 function loadTemplate(filename: string) {
   const filePath = path.join(TEMPLATE_DIR, filename);
@@ -96,6 +111,40 @@ export function buildDoctorNewAssessmentEmail(results: ChallengeResults) {
 
   const subject = `New patient assessment — ${patientName} (Package ${pkg.package})`;
   const text = `New detox challenge: ${patientName}, ${personal.email}, score ${results.grandTotal}/${results.maxTotal}, ${results.toxicLevelLabel}, Package ${pkg.package}.`;
+
+  return { subject, html, text };
+}
+
+export function buildSessionInvoiceEmail(
+  patientName: string,
+  invoiceNumber: string,
+  amount: number,
+  sessionDate: Date,
+  clinicName: string,
+  options?: { sessionLabel?: string; description?: string },
+) {
+  const sessionWhen = formatSessionWhen(sessionDate);
+  const amountFormatted = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(amount);
+  const sessionLabel = options?.sessionLabel ?? "Detox treatment session";
+  const description =
+    options?.description ?? `AcuActiv detox session — ${sessionWhen}`;
+
+  const html = renderTemplate(loadTemplate(INVOICE_FILE), {
+    patientName,
+    invoiceNumber,
+    sessionWhen,
+    amountFormatted,
+    sessionLabel,
+    description,
+    clinicName,
+    contactEmail: getContactEmail(),
+  });
+
+  const subject = `Invoice ${invoiceNumber} — ${clinicName} session`;
+  const text = `Dear ${patientName}, your invoice ${invoiceNumber} for ${amountFormatted} is due for your session on ${sessionWhen}. Contact ${getContactEmail()} or (888) 770-6887.`;
 
   return { subject, html, text };
 }

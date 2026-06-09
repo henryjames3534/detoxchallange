@@ -229,12 +229,16 @@ export async function processSessionAutomation() {
 
     if (!invoice.emailSentAt) {
       const patientName = `${session.patient.firstName} ${session.patient.lastName}`;
+      const sessionLabel = session.sessionIndex
+        ? `Session ${session.sessionIndex}`
+        : "Detox session";
       const { subject, html, text } = buildSessionInvoiceEmail(
         patientName,
         invoice.invoiceNumber,
         invoice.amount,
         session.scheduledAt,
         doctor?.clinicName ?? "AcuActiv",
+        { sessionLabel, description: invoice.description },
       );
       await sendEmail({
         to: session.patient.email,

@@ -11,7 +11,7 @@ async function main() {
   const username = process.env.DOCTOR_USERNAME ?? "doctor";
   const password = process.env.DOCTOR_PASSWORD ?? "AcuActiv2026!";
   const name = process.env.DOCTOR_NAME ?? "Dr. Shlomi Gavish";
-  const email = process.env.DOCTOR_EMAIL ?? "henryjames3534@gmail.com";
+  const email = process.env.DOCTOR_EMAIL ?? "info@acuactiv.com";
 
   const passwordHash = await bcrypt.hash(password, 12);
 

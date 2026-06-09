@@ -27,7 +27,7 @@ export function getDoctorNotificationEmail() {
   return (
     process.env.DOCTOR_EMAIL ??
     process.env.DOCTOR_NOTIFICATION_EMAIL ??
-    "henryjames3534@gmail.com"
+    "info@acuactiv.com"
   );
 }
 
@@ -119,33 +119,4 @@ export function buildDoctorSessionReminderEmail(
   return { subject, html, text: `${subject} — ${when}` };
 }
 
-export function buildSessionInvoiceEmail(
-  patientName: string,
-  invoiceNumber: string,
-  amount: number,
-  sessionDate: Date,
-  clinicName: string,
-) {
-  const when = formatSessionWhen(sessionDate);
-  const formatted = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount);
-  const subject = `Invoice ${invoiceNumber} — ${clinicName} session`;
-  const html = `
-    <p>Dear ${patientName},</p>
-    <p>Your invoice for the upcoming detox session on <strong>${when}</strong> is ready.</p>
-    <table cellpadding="8" style="border-collapse:collapse;margin:16px 0;">
-      <tr><td><strong>Invoice #</strong></td><td>${invoiceNumber}</td></tr>
-      <tr><td><strong>Session</strong></td><td>${when}</td></tr>
-      <tr><td><strong>Amount due</strong></td><td>${formatted}</td></tr>
-    </table>
-    <p>Please bring payment or contact us at (888) 770-6887 or acuactiv@gmail.com before your appointment.</p>
-    <p>Warm regards,<br/>${clinicName}</p>
-  `;
-  return {
-    subject,
-    html,
-    text: `${subject} — ${formatted} for session on ${when}. Invoice ${invoiceNumber}.`,
-  };
-}
+export { buildSessionInvoiceEmail } from "@/lib/email-templates";
