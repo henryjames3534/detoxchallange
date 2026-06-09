@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getCategoryBanner } from "@/lib/category-banners";
 import { getCategoryTestLabel } from "@/lib/questionnaire";
@@ -11,7 +11,7 @@ const DURATION_MS = 5000;
 interface CategoryTestStartBannerProps {
   category: Category;
   open: boolean;
-  onComplete: () => void;
+  onComplete: (categoryId: string) => void;
 }
 
 export function CategoryTestStartBanner({
@@ -21,6 +21,11 @@ export function CategoryTestStartBanner({
 }: CategoryTestStartBannerProps) {
   const banner = getCategoryBanner(category.id);
   const [progress, setProgress] = useState(0);
+  const onCompleteRef = useRef(onComplete);
+
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
 
   useEffect(() => {
     if (!open) {
@@ -30,6 +35,7 @@ export function CategoryTestStartBanner({
 
     const started = performance.now();
     let frame = 0;
+    let finished = false;
 
     const tick = (now: number) => {
       const elapsed = now - started;
@@ -37,7 +43,10 @@ export function CategoryTestStartBanner({
       setProgress(next);
 
       if (elapsed >= DURATION_MS) {
-        onComplete();
+        if (!finished) {
+          finished = true;
+          onCompleteRef.current(category.id);
+        }
         return;
       }
 
@@ -45,11 +54,14 @@ export function CategoryTestStartBanner({
     };
 
     frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [open, category.id, onComplete]);
+    return () => {
+      finished = true;
+      cancelAnimationFrame(frame);
+    };
+  }, [open, category.id]);
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {open && (
         <motion.div
           key={category.id}
@@ -57,6 +69,7 @@ export function CategoryTestStartBanner({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
           role="dialog"
           aria-modal="true"
           aria-labelledby="category-test-banner-title"
@@ -64,30 +77,27 @@ export function CategoryTestStartBanner({
           <div className="absolute inset-0 bg-sky-950/70 backdrop-blur-sm" aria-hidden />
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 24 }}
+            initial={{ opacity: 0, scale: 0.96, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: 12 }}
-            transition={{ type: "spring", stiffness: 320, damping: 28 }}
+            exit={{ opacity: 0, scale: 0.98, y: 8 }}
+            transition={{ duration: 0.25 }}
             className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-white/20 bg-white shadow-2xl shadow-sky-950/40 sm:max-w-xl sm:rounded-3xl"
           >
-            <div className="relative aspect-[16/10] w-full min-h-[180px] sm:min-h-[220px]">
+            <div className="relative aspect-[16/10] w-full min-h-[200px] sm:min-h-[240px]">
               <img
-                src={banner.image}
+                src={`${banner.image}?v=3`}
                 alt=""
-                className="absolute inset-0 h-full w-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover object-center"
               />
               <div
-                className={`absolute inset-0 bg-gradient-to-br ${banner.gradient} opacity-75 mix-blend-multiply`}
+                className={`absolute inset-0 bg-gradient-to-t ${banner.gradient}`}
                 aria-hidden
               />
               <div
-                className="absolute inset-0 bg-gradient-to-t from-sky-950/80 via-sky-950/25 to-transparent"
+                className="absolute inset-0 bg-gradient-to-t from-sky-950/85 via-sky-950/35 to-transparent"
                 aria-hidden
               />
               <div className="absolute inset-0 flex flex-col items-center justify-end px-6 pb-8 pt-12 text-center text-white sm:px-8 sm:pb-10">
-                <span className="mb-3 text-5xl drop-shadow-lg sm:text-6xl" aria-hidden>
-                  {banner.emoji}
-                </span>
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-100/90 sm:text-sm">
                   Starting next section
                 </p>

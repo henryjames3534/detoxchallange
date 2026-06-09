@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState, useEffect } from "react";
+import { useCallback, useMemo, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, ClipboardList, User } from "lucide-react";
@@ -42,15 +42,15 @@ export function ChallengeClient() {
   const currentCategory = CATEGORIES[categoryIndex];
   const currentQuestion = currentCategory?.questions[questionIndex];
 
-  const handleCategoryIntroComplete = useCallback(() => {
+  const handleCategoryIntroComplete = useCallback((categoryId: string) => {
     setSeenCategoryIntros((prev) => {
-      if (!activeIntroCategoryId || prev.has(activeIntroCategoryId)) {
+      if (prev.has(categoryId)) {
         return prev;
       }
-      return new Set(prev).add(activeIntroCategoryId);
+      return new Set(prev).add(categoryId);
     });
     setActiveIntroCategoryId(null);
-  }, [activeIntroCategoryId]);
+  }, []);
 
   useEffect(() => {
     if (step !== "questionnaire" || questionIndex !== 0 || !currentCategory) {
@@ -61,8 +61,19 @@ export function ChallengeClient() {
       return;
     }
 
+    if (activeIntroCategoryId === currentCategory.id) {
+      return;
+    }
+
     setActiveIntroCategoryId(currentCategory.id);
-  }, [step, categoryIndex, questionIndex, currentCategory?.id, seenCategoryIntros]);
+  }, [
+    step,
+    categoryIndex,
+    questionIndex,
+    currentCategory?.id,
+    seenCategoryIntros,
+    activeIntroCategoryId,
+  ]);
 
   const showingCategoryIntro =
     step === "questionnaire" &&
@@ -139,10 +150,29 @@ export function ChallengeClient() {
     setStep("questionnaire");
   };
 
+  const [submitting, setSubmitting] = useState(false);
+  const submitLockRef = useRef<{
+    id: string;
+    completedAt: string;
+    busy: boolean;
+  }>({ id: "", completedAt: "", busy: false });
+
   const handleSubmit = async () => {
-    if (!personal) return;
+    if (!personal || submitting || submitLockRef.current.busy) return;
+
+    submitLockRef.current.busy = true;
+    setSubmitting(true);
+
+    if (!submitLockRef.current.id) {
+      submitLockRef.current.id = crypto.randomUUID();
+      submitLockRef.current.completedAt = new Date().toISOString();
+    }
+
     const answers: ChallengeAnswers = { personal, scores };
     const results = computeResults(answers);
+    results.completedAt = submitLockRef.current.completedAt;
+    results.submissionId = submitLockRef.current.id;
+
     saveAnswers(answers);
     saveResults(results);
 
@@ -199,7 +229,7 @@ export function ChallengeClient() {
           onComplete={handleCategoryIntroComplete}
         />
       )}
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="sync">
           {step === "personal" && (
             <motion.div
               key="personal"
@@ -231,16 +261,12 @@ export function ChallengeClient() {
 
           {step === "questionnaire" && currentCategory && currentQuestion && (
             <motion.div
-              key={`q-${categoryIndex}-${questionIndex}`}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{
-                opacity: showingCategoryIntro ? 0.35 : 1,
-                x: 0,
-                pointerEvents: showingCategoryIntro ? "none" : "auto",
-              }}
-              exit={{ opacity: 0, x: -20 }}
+              key={`cat-${categoryIndex}`}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.2 }}
               className="flex w-full flex-col gap-8"
-              aria-hidden={showingCategoryIntro}
             >
               <div className="w-full">
                 <span className="mb-4 inline-flex items-center gap-2.5 rounded-full border-2 border-cyan-200 bg-cyan-50 px-6 py-2.5 text-base font-semibold text-cyan-900 sm:gap-3 sm:px-7 sm:py-3 sm:text-lg md:text-xl">
@@ -268,6 +294,7 @@ export function ChallengeClient() {
               </div>
 
               <QuestionCard
+                key={currentQuestion.id}
                 questionNumber={questionIndex + 1}
                 totalInCategory={currentCategory.questions.length}
                 text={currentQuestion.text}
@@ -390,9 +417,9 @@ export function ChallengeClient() {
                   <Button
                     className="flex-1"
                     onClick={handleSubmit}
-                    disabled={!allAnswered}
+                    disabled={!allAnswered || submitting}
                   >
-                    Submit & view results
+                    {submitting ? "Submitting…" : "Submit & view results"}
                   </Button>
                 </div>
               </GlassCard>

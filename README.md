@@ -33,7 +33,38 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Open [http://localhost:3002](http://localhost:3002)
+
+### Doctor portal
+
+```bash
+cp .env.example .env   # if needed
+npm run db:setup       # create SQLite DB + seed doctor account
+```
+
+Sign in at **[http://localhost:3002/portal/login](http://localhost:3002/portal/login)**
+
+Default credentials (change after first login via Settings):
+
+| Field | Value |
+|-------|-------|
+| Username | `doctor` |
+| Password | `AcuActiv2026!` |
+
+Portal features:
+
+- **Patients** — all challenge submissions, date-sorted, with scores and package recommendations
+- **Sessions** — auto-created weekly from package (e.g. Package 4 = 15 sessions); doctor can edit any date/time
+- **Automation** — patient + doctor reminders 24h before; invoice generated and emailed 12h before each session
+- **Invoices** — manual or auto-generated, printable for patients
+- **Settings** — change doctor password
+
+Run session automation manually from the Sessions tab (or schedule hourly cron):
+
+```bash
+curl -X POST http://localhost:3002/api/portal/reminders \
+  -H "Authorization: Bearer YOUR_CRON_SECRET"
+```
 
 ## Deploy
 
@@ -41,6 +72,9 @@ Open [http://localhost:3000](http://localhost:3000)
 npm run build
 npm start
 ```
+
+Set Gmail SMTP in `.env` (`SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`) for all emails:
+challenge thank-you to patient, doctor notification, session reminders, and invoices.
 
 Set `DETOX_EMAIL_WEBHOOK` in production to forward submissions to your backend.
 

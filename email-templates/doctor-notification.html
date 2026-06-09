@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Patient Assessment — AcuActiv</title>
+</head>
+<body style="margin:0;padding:0;background-color:#e0f2fe;font-family:Arial,Helvetica,sans-serif;">
+  <table
+    role="presentation"
+    width="100%"
+    cellpadding="0"
+    cellspacing="0"
+    background="https://creativelogomakers.com/acuactiv/bg.png"
+    style="background-color:#e0f2fe;background-image:url('https://creativelogomakers.com/acuactiv/bg.png');background-repeat:no-repeat;background-position:center top;background-size:cover;padding:32px 16px;"
+  >
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(30,58,95,0.15);">
+          <tr>
+            <td align="center" style="background-color:#1e3a5f;background:linear-gradient(135deg,#1e3a5f 0%,#0c4a6e 50%,#0e7490 100%);padding:28px;text-align:center;">
+              <img src="https://creativelogomakers.com/acuactiv/lg.png" alt="AcuActiv" width="140" style="display:block;margin:0 auto 16px;max-width:140px;border:0;" />
+              <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:bold;">New Detox Challenge Submission</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:28px;background:#ffffff;color:#1e3a5f;font-size:15px;line-height:1.6;">
+              <p style="margin:0 0 16px;">Dear Dr. Gavish,</p>
+              <p style="margin:0 0 20px;">A patient has completed the detox challenge. Details below:</p>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;">
+                <tr><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;"><strong>Patient</strong></td><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;">{{patientName}}</td></tr>
+                <tr><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;"><strong>Email</strong></td><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;"><a href="mailto:{{email}}" style="color:#0e7490;">{{email}}</a></td></tr>
+                <tr><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;"><strong>Phone</strong></td><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;">{{phone}}</td></tr>
+                <tr><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;"><strong>Date of birth</strong></td><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;">{{dateOfBirth}}</td></tr>
+                <tr><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;"><strong>Completed</strong></td><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;">{{completedAt}}</td></tr>
+                <tr><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;"><strong>Score</strong></td><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;">{{grandTotal}} / {{maxTotal}}</td></tr>
+                <tr><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;"><strong>Toxic burden</strong></td><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;">{{toxicLevelPercent}}% — {{toxicLevelLabel}}</td></tr>
+                <tr><td style="padding:16px 20px;"><strong>Package</strong></td><td style="padding:16px 20px;">Package {{packageNumber}} ({{packageSessions}} sessions)</td></tr>
+              </table>
+              <p style="margin:0 0 12px;font-size:13px;color:#0f766e;font-weight:bold;text-transform:uppercase;">Category breakdown</p>
+              <div style="font-size:14px;color:#334155;">{{categoryBreakdown}}</div>
+              <p style="margin:24px 0 0;font-size:13px;color:#64748b;">Review full records in the doctor portal.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

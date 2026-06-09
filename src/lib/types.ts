@@ -49,4 +49,6 @@ export interface ChallengeResults {
   toxicLevelPercent: number;
   toxicLevelLabel: string;
   completedAt: string;
+  /** Client-generated idempotency key — one submission, one email */
+  submissionId?: string;
 }
