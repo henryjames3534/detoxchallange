@@ -6,6 +6,16 @@ import { prisma } from "@/lib/db";
 const COOKIE_NAME = "portal_session";
 const SESSION_HOURS = 12;
 
+export function getPortalSessionCookieOptions() {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax" as const,
+    path: "/",
+    maxAge: SESSION_HOURS * 60 * 60,
+  };
+}
+
 function getSecret() {
   const secret = process.env.PORTAL_SESSION_SECRET;
   if (!secret && process.env.NODE_ENV === "production") {
@@ -14,21 +24,18 @@ function getSecret() {
   return new TextEncoder().encode(secret ?? "dev-portal-secret-change-me");
 }
 
-export async function createPortalSession(doctorId: string) {
-  const token = await new SignJWT({ doctorId })
+export async function createPortalSessionToken(doctorId: string) {
+  return new SignJWT({ doctorId })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${SESSION_HOURS}h`)
     .sign(getSecret());
+}
 
+export async function createPortalSession(doctorId: string) {
+  const token = await createPortalSessionToken(doctorId);
   const cookieStore = await cookies();
-  cookieStore.set(COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: SESSION_HOURS * 60 * 60,
-  });
+  cookieStore.set(COOKIE_NAME, token, getPortalSessionCookieOptions());
 }
 
 export async function clearPortalSession() {

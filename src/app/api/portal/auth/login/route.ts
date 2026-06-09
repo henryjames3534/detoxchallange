@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import {
-  createPortalSession,
+  createPortalSessionToken,
+  getPortalSessionCookieOptions,
   requireDoctor,
   verifyDoctorCredentials,
 } from "@/lib/portal-auth";
+
+const COOKIE_NAME = "portal_session";
 
 export async function POST(request: Request) {
   try {
@@ -24,9 +27,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    await createPortalSession(doctor.id);
-
-    return NextResponse.json({
+    const token = await createPortalSessionToken(doctor.id);
+    const response = NextResponse.json({
       ok: true,
       doctor: {
         id: doctor.id,
@@ -34,6 +36,9 @@ export async function POST(request: Request) {
         name: doctor.name,
       },
     });
+    response.cookies.set(COOKIE_NAME, token, getPortalSessionCookieOptions());
+
+    return response;
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json({ error: "Login failed" }, { status: 500 });

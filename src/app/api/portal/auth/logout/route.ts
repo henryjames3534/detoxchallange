@@ -1,7 +1,15 @@
 import { NextResponse } from "next/server";
-import { clearPortalSession } from "@/lib/portal-auth";
+
+const COOKIE_NAME = "portal_session";
 
 export async function POST() {
-  await clearPortalSession();
-  return NextResponse.json({ ok: true });
+  const response = NextResponse.json({ ok: true });
+  response.cookies.set(COOKIE_NAME, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
+  return response;
 }
