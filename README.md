@@ -73,6 +73,41 @@ npm run build
 npm start
 ```
 
+### Production (Vercel + Neon PostgreSQL)
+
+Set these in **Vercel → Project → Settings → Environment Variables**:
+
+| Variable | Value |
+|----------|--------|
+| `DATABASE_URL` | Neon **pooler** connection string (`...-pooler...neon.tech/neondb?sslmode=require`) |
+| `PORTAL_SESSION_SECRET` | Long random string |
+| `DOCTOR_USERNAME` | `doctor` |
+| `DOCTOR_PASSWORD` | Your portal password |
+| `DOCTOR_NAME` | `Dr. Shlomi Gavish` |
+| `DOCTOR_EMAIL` | `info@acuactiv.com` |
+| `SMTP_HOST` | `smtp.gmail.com` |
+| `SMTP_PORT` | `587` |
+| `SMTP_USER` | Gmail address |
+| `SMTP_PASS` | Gmail app password |
+| `SMTP_FROM` | `AcuActiv <your@gmail.com>` |
+| `CLINIC_NAME` | `AcuActiv` |
+| `NEXT_PUBLIC_APP_URL` | `https://your-app.vercel.app` |
+| `CRON_SECRET` | Long random string (for hourly session reminders) |
+
+After first deploy, run locally once (with production `DATABASE_URL` in `.env`):
+
+```bash
+npm run db:setup
+```
+
+Or run `npm run db:push` and `npm run db:seed` against Neon.
+
+Verify locally:
+
+```bash
+npx tsx scripts/verify-setup.ts
+```
+
 Set Gmail SMTP in `.env` (`SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`) for all emails:
 challenge thank-you to patient, doctor notification, session reminders, and invoices.
 
