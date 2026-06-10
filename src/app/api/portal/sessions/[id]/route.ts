@@ -23,13 +23,18 @@ export async function PATCH(request: Request, context: RouteContext) {
     await resetSessionAutomationOnReschedule(id);
   }
 
+  const durationMins =
+    body.durationMins != null
+      ? Math.min(Math.max(body.durationMins, 15), 480)
+      : undefined;
+
   const session = await prisma.session.update({
     where: { id },
     data: {
       ...(body.status ? { status: body.status } : {}),
       ...(body.scheduledAt ? { scheduledAt: new Date(body.scheduledAt) } : {}),
       ...(body.notes !== undefined ? { notes: body.notes } : {}),
-      ...(body.durationMins != null ? { durationMins: body.durationMins } : {}),
+      ...(durationMins != null ? { durationMins } : {}),
     },
   });
 

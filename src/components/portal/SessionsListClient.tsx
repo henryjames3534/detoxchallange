@@ -102,7 +102,6 @@ function SessionItem({
           </p>
         )}
         <EditSessionDate session={session} onUpdate={handleUpdate} />
-        <p className="text-sm text-sky-600">{session.durationMins} min</p>
         {session.notes && (
           <p className="mt-1 text-sm text-sky-600">{session.notes}</p>
         )}

@@ -43,6 +43,7 @@ export async function createPackageSessionsForAssessment(
   packageNumber: number,
   sessionCount: number,
   completedAt: Date,
+  durationMins?: number,
 ) {
   const existing = await prisma.session.count({
     where: { assessmentId, status: { not: "cancelled" } },
@@ -52,6 +53,7 @@ export async function createPackageSessionsForAssessment(
   }
 
   const config = getSessionScheduleConfig();
+  const sessionDuration = durationMins ?? config.durationMins;
   let slot = getFirstWeeklySlot(completedAt, config);
   const sessions = [];
 
@@ -61,7 +63,7 @@ export async function createPackageSessionsForAssessment(
       assessmentId,
       sessionIndex: i,
       scheduledAt: new Date(slot),
-      durationMins: config.durationMins,
+      durationMins: sessionDuration,
       notes: `Package ${packageNumber} — Session ${i} of ${sessionCount}`,
       status: "scheduled",
     });

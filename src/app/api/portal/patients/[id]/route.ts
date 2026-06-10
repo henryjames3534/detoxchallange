@@ -51,6 +51,7 @@ export async function POST(request: Request, context: RouteContext) {
   const body = (await request.json()) as {
     action?: string;
     assessmentId?: string;
+    durationMins?: number;
   };
 
   const patient = await prisma.patient.findUnique({ where: { id } });
@@ -76,7 +77,15 @@ export async function POST(request: Request, context: RouteContext) {
       );
     }
 
-    const result = await generateSessionsForAssessment(assessment.id);
+    const durationMins =
+      body.durationMins != null && body.durationMins >= 15
+        ? Math.min(body.durationMins, 480)
+        : undefined;
+
+    const result = await generateSessionsForAssessment(
+      assessment.id,
+      durationMins,
+    );
     return NextResponse.json({ ok: true, ...result });
   }
 

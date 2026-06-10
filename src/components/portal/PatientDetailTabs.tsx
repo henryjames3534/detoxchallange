@@ -128,8 +128,9 @@ export function PatientDetailTabs({
                     )}
                     {a.scheduledSessionCount > 0 ? (
                       <p className="mt-2 text-xs text-teal-700">
-                        {a.scheduledSessionCount} weekly session
+                        {a.scheduledSessionCount} weekly appointment
                         {a.scheduledSessionCount === 1 ? "" : "s"} scheduled
+                        — edit date/time & duration in Sessions tab
                       </p>
                     ) : (
                       <div className="mt-3">
@@ -158,7 +159,7 @@ export function PatientDetailTabs({
         <div className="grid gap-6 lg:grid-cols-2">
           <div>
             <h2 className="mb-4 text-lg font-semibold text-[#1e3a5f]">
-              Book session
+              Book appointment
             </h2>
             <BookSessionForm
               patientId={patientId}
@@ -306,7 +307,6 @@ function SessionRow({
         session={session}
         onUpdate={(updated) => onUpdate({ ...session, ...updated })}
       />
-      <p className="text-sm text-sky-700">{session.durationMins} minutes</p>
       {session.notes && (
         <p className="mt-1 text-sm text-sky-600">{session.notes}</p>
       )}

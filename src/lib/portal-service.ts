@@ -83,7 +83,10 @@ export async function markChallengeEmailsSent(assessmentId: string) {
   });
 }
 
-export async function generateSessionsForAssessment(assessmentId: string) {
+export async function generateSessionsForAssessment(
+  assessmentId: string,
+  durationMins?: number,
+) {
   const assessment = await prisma.assessment.findUnique({
     where: { id: assessmentId },
   });
@@ -95,6 +98,7 @@ export async function generateSessionsForAssessment(assessmentId: string) {
     assessment.packageNumber,
     assessment.packageSessions,
     assessment.completedAt,
+    durationMins,
   );
 }
 
