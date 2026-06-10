@@ -32,7 +32,7 @@ export function getDoctorNotificationEmail() {
   return (
     process.env.DOCTOR_EMAIL ??
     process.env.DOCTOR_NOTIFICATION_EMAIL ??
-    "info@acuactiv.com"
+    "acuactiv@gmail.com"
   );
 }
 

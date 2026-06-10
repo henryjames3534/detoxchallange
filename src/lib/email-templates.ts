@@ -12,7 +12,7 @@ const DOCTOR_NOTIFICATION_FILE = "doctor-notification.html";
 const INVOICE_FILE = "invoice-template.html";
 
 function getContactEmail() {
-  return process.env.DOCTOR_EMAIL ?? "info@acuactiv.com";
+  return process.env.DOCTOR_EMAIL ?? "acuactiv@gmail.com";
 }
 
 function loadTemplate(filename: string) {
