@@ -84,7 +84,7 @@ Set these in **Vercel → Project → Settings → Environment Variables**:
 | `DOCTOR_USERNAME` | `doctor` |
 | `DOCTOR_PASSWORD` | Your portal password |
 | `DOCTOR_NAME` | `Dr. Shlomi Gavish` |
-| `DOCTOR_EMAIL` | `info@acuactiv.com` |
+| `DOCTOR_EMAIL` | `acuactiv@gmail.com` |
 | `SMTP_HOST` | `smtp.gmail.com` |
 | `SMTP_PORT` | `587` |
 | `SMTP_USER` | Gmail address |
