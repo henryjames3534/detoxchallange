@@ -18,6 +18,7 @@ import { DietRecommendations } from "@/components/DietRecommendations";
 import { PackageRecommendationTable } from "@/components/PackageRecommendationTable";
 import { loadResults, clearChallengeData } from "@/lib/storage";
 import { getToxicLevelColor } from "@/lib/scoring";
+import { formatDate } from "@/lib/portal-format";
 import { usePrintMode } from "@/hooks/usePrintMode";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import headerLogo from "@/assets/acuactiv-logo.png";
@@ -92,7 +93,7 @@ export function ResultsClient() {
           <h1 className="mt-2 text-2xl font-bold sm:text-3xl">{t.results.yourResults}</h1>
           <p className="mt-2 text-sm text-white/90">
             {results.personal.firstName} {results.personal.lastName} ·{" "}
-            {new Date(results.completedAt).toLocaleDateString()}
+            {formatDate(results.completedAt)}
           </p>
         </motion.div>
 

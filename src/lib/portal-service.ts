@@ -6,6 +6,7 @@ import {
   getSessionScheduleConfig,
   resetSessionAutomationOnReschedule,
 } from "@/lib/session-scheduling";
+import { formatSessionWhenEastern, getEasternCompactDate } from "@/lib/timezone";
 
 export { resetSessionAutomationOnReschedule };
 
@@ -103,7 +104,7 @@ export async function generateSessionsForAssessment(
 }
 
 export async function generateInvoiceNumber() {
-  const prefix = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}`;
+  const prefix = `INV-${getEasternCompactDate()}`;
   const count = await prisma.invoice.count({
     where: { invoiceNumber: { startsWith: prefix } },
   });
@@ -203,13 +204,7 @@ export async function processSessionAutomation() {
       const sessionLabel = session.sessionIndex
         ? `Session ${session.sessionIndex}`
         : "Detox session";
-      const when = session.scheduledAt.toLocaleString(undefined, {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-      });
+      const when = formatSessionWhenEastern(session.scheduledAt);
 
       invoice = await prisma.invoice.create({
         data: {

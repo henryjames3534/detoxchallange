@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { formatSessionWhenEastern } from "@/lib/timezone";
 
 interface SendEmailOptions {
   to: string;
@@ -79,22 +80,12 @@ export function buildAssessmentReminderEmail(patientName: string) {
   return { subject, html, text: subject };
 }
 
-function formatSessionWhen(sessionDate: Date) {
-  return sessionDate.toLocaleString(undefined, {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
 export function buildSessionReminderEmail(
   patientName: string,
   sessionDate: Date,
   clinicName: string,
 ) {
-  const when = formatSessionWhen(sessionDate);
+  const when = formatSessionWhenEastern(sessionDate);
   const subject = `Reminder: Your ${clinicName} session tomorrow`;
   const html = `
     <p>Dear ${patientName},</p>
@@ -111,7 +102,7 @@ export function buildDoctorSessionReminderEmail(
   sessionDate: Date,
   sessionIndex: number | null,
 ) {
-  const when = formatSessionWhen(sessionDate);
+  const when = formatSessionWhenEastern(sessionDate);
   const label = sessionIndex ? `Session ${sessionIndex}` : "Session";
   const subject = `Reminder: ${label} with ${patientName} tomorrow`;
   const html = `

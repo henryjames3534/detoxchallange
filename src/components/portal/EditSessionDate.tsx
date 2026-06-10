@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 import { formatDateTime } from "@/lib/portal-format";
+import {
+  fromDateTimeLocalValueEastern,
+  toDateTimeLocalValueEastern,
+} from "@/lib/timezone";
 
 export type EditableSession = {
   id: string;
@@ -16,9 +20,7 @@ export type EditableSession = {
 };
 
 function toLocalInputValue(value: string | Date) {
-  const d = typeof value === "string" ? new Date(value) : value;
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return toDateTimeLocalValueEastern(value);
 }
 
 interface EditSessionDateProps {
@@ -45,7 +47,7 @@ export function EditSessionDate({ session, onUpdate }: EditSessionDateProps) {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        scheduledAt: new Date(value).toISOString(),
+        scheduledAt: fromDateTimeLocalValueEastern(value).toISOString(),
         durationMins,
       }),
     });
@@ -71,13 +73,13 @@ export function EditSessionDate({ session, onUpdate }: EditSessionDateProps) {
           setEditing(true);
         }}
         className="mt-1 text-left hover:text-teal-700"
-        title="Click to edit date, time & duration"
+        title="Click to edit date, time & duration (US Eastern)"
       >
         <span className="block font-medium text-[#1e3a5f]">
           {formatDateTime(session.scheduledAt)}
         </span>
         <span className="text-sm text-sky-600">
-          {session.durationMins ?? 60} min · click to edit
+          {session.durationMins ?? 60} min · Eastern Time · click to edit
         </span>
       </button>
     );
@@ -87,7 +89,7 @@ export function EditSessionDate({ session, onUpdate }: EditSessionDateProps) {
     <div className="mt-1 space-y-2 rounded-lg border border-sky-200 bg-sky-50/50 p-3">
       <div>
         <label className="mb-1 block text-xs font-medium text-sky-800">
-          Date & time
+          Date & time (US Eastern)
         </label>
         <input
           type="datetime-local"

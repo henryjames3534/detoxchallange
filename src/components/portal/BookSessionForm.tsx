@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/Button";
+import { fromDateTimeLocalValueEastern } from "@/lib/timezone";
 
 type BookedSession = {
   id: string;
@@ -37,7 +38,7 @@ export function BookSessionForm({ patientId, onBooked }: BookSessionFormProps) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         patientId,
-        scheduledAt: new Date(scheduledAt).toISOString(),
+        scheduledAt: fromDateTimeLocalValueEastern(scheduledAt).toISOString(),
         durationMins,
         notes: notes || undefined,
       }),
@@ -70,7 +71,7 @@ export function BookSessionForm({ patientId, onBooked }: BookSessionFormProps) {
       <div className="space-y-4">
         <div>
           <label className="mb-1 block text-sm font-medium text-sky-900">
-            Date & time
+            Date & time (US Eastern)
           </label>
           <input
             type="datetime-local"

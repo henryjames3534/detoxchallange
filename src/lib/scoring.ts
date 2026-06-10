@@ -5,6 +5,7 @@ import type {
   ChallengeResults,
   SymptomFrequency,
 } from "./types";
+import { nowIsoUtc } from "./timezone";
 
 export function getCategoryScore(
   answers: Record<string, SymptomFrequency> | undefined,
@@ -39,7 +40,7 @@ export function computeResults(data: ChallengeAnswers): ChallengeResults {
     maxTotal: MAX_TOTAL_SCORE,
     toxicLevelPercent,
     toxicLevelLabel: getToxicLevelLabel(toxicLevelPercent),
-    completedAt: new Date().toISOString(),
+    completedAt: nowIsoUtc(),
   };
 }
 

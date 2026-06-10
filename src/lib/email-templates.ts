@@ -2,21 +2,14 @@ import { readFileSync } from "fs";
 import path from "path";
 import type { ChallengeResults } from "@/lib/types";
 import { getRecommendedPackage } from "@/lib/packages";
-
+import {
+  formatCompletedAtEastern,
+  formatSessionWhenEastern,
+} from "@/lib/timezone";
 const TEMPLATE_DIR = path.join(process.cwd(), "email-templates");
 const THANK_YOU_FILE = "email-template.html";
 const DOCTOR_NOTIFICATION_FILE = "doctor-notification.html";
 const INVOICE_FILE = "invoice-template.html";
-
-function formatSessionWhen(sessionDate: Date) {
-  return sessionDate.toLocaleString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
 
 function getContactEmail() {
   return process.env.DOCTOR_EMAIL ?? "info@acuactiv.com";
@@ -41,14 +34,7 @@ function renderTemplate(
 export function buildChallengeThankYouEmail(results: ChallengeResults) {
   const pkg = getRecommendedPackage(results.grandTotal);
   const patientName = `${results.personal.firstName} ${results.personal.lastName}`.trim();
-  const completedAt = new Date(results.completedAt).toLocaleString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  const completedAt = formatCompletedAtEastern(results.completedAt);
 
   const html = renderTemplate(loadTemplate(THANK_YOU_FILE), {
     patientName,
@@ -78,14 +64,7 @@ export function buildDoctorNewAssessmentEmail(results: ChallengeResults) {
   const pkg = getRecommendedPackage(results.grandTotal);
   const { personal } = results;
   const patientName = `${personal.firstName} ${personal.lastName}`.trim();
-  const completedAt = new Date(results.completedAt).toLocaleString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  const completedAt = formatCompletedAtEastern(results.completedAt);
 
   const categoryBreakdown = results.categories
     .map(
@@ -123,7 +102,7 @@ export function buildSessionInvoiceEmail(
   clinicName: string,
   options?: { sessionLabel?: string; description?: string },
 ) {
-  const sessionWhen = formatSessionWhen(sessionDate);
+  const sessionWhen = formatSessionWhenEastern(sessionDate);
   const amountFormatted = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",

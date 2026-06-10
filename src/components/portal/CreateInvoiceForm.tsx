@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/Button";
+import { easternToUtc } from "@/lib/timezone";
 
 type Invoice = {
   id: string;
@@ -42,7 +43,12 @@ export function CreateInvoiceForm({
         patientId,
         amount: parseFloat(amount),
         description,
-        dueAt: dueAt ? new Date(dueAt).toISOString() : undefined,
+        dueAt: dueAt
+          ? (() => {
+              const [y, m, d] = dueAt.split("-").map(Number);
+              return easternToUtc(y, m, d, 17, 0).toISOString();
+            })()
+          : undefined,
       }),
     });
 
@@ -99,7 +105,7 @@ export function CreateInvoiceForm({
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium text-sky-900">
-            Due date (optional)
+            Due date (optional, US Eastern)
           </label>
           <input
             type="date"

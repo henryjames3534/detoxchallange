@@ -15,6 +15,7 @@ import { CategoryTestStartBanner } from "@/components/CategoryTestStartBanner";
 import { TOTAL_QUESTIONS, getFirstUnansweredQuestionIndex, getMissedQuestionCount } from "@/lib/questionnaire";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import { computeResults } from "@/lib/scoring";
+import { nowIsoUtc } from "@/lib/timezone";
 import { saveAnswers, saveResults } from "@/lib/storage";
 import type {
   ChallengeAnswers,
@@ -167,7 +168,7 @@ export function ChallengeClient() {
 
     if (!submitLockRef.current.id) {
       submitLockRef.current.id = crypto.randomUUID();
-      submitLockRef.current.completedAt = new Date().toISOString();
+      submitLockRef.current.completedAt = nowIsoUtc();
     }
 
     const answers: ChallengeAnswers = { personal, scores };

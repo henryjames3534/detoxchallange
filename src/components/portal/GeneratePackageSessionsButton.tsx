@@ -60,7 +60,7 @@ export function GeneratePackageSessionsButton({
       </p>
       <p className="mt-1 text-xs text-teal-800/80">
         First visit is one week after assessment, then weekly on your default
-        day/time.
+        day/time (US Eastern).
       </p>
       <div className="mt-3">
         <label className="mb-1 block text-xs font-medium text-teal-900">

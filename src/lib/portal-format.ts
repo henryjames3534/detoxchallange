@@ -1,21 +1,14 @@
+import {
+  formatDateEastern,
+  formatDateTimeEastern,
+} from "@/lib/timezone";
+
 export function formatDateTime(value: string | Date) {
-  const d = typeof value === "string" ? new Date(value) : value;
-  return d.toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  return formatDateTimeEastern(value);
 }
 
 export function formatDate(value: string | Date) {
-  const d = typeof value === "string" ? new Date(value) : value;
-  return d.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return formatDateEastern(value);
 }
 
 export function formatCurrency(amount: number) {

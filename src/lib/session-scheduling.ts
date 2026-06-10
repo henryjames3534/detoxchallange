@@ -1,4 +1,9 @@
 import { prisma } from "@/lib/db";
+import {
+  addEasternDays,
+  easternToUtc,
+  getEasternParts,
+} from "@/lib/timezone";
 
 export interface SessionScheduleConfig {
   weekday: number;
@@ -18,23 +23,52 @@ export function getSessionScheduleConfig(): SessionScheduleConfig {
   };
 }
 
-/** First session: at least 7 days after assessment, on the configured weekday/time. */
-export function getFirstWeeklySlot(after: Date, config: SessionScheduleConfig): Date {
-  const start = new Date(after);
-  start.setDate(start.getDate() + 7);
-  start.setHours(config.hour, config.minute, 0, 0);
+/** First session: ≥7 days after assessment, on configured weekday/time (US Eastern). */
+export function getFirstWeeklySlot(
+  after: Date,
+  config: SessionScheduleConfig,
+): Date {
+  let candidate = addEasternDays(after, 7);
+  let parts = getEasternParts(candidate);
+  candidate = easternToUtc(
+    parts.year,
+    parts.month,
+    parts.day,
+    config.hour,
+    config.minute,
+  );
 
-  while (start.getDay() !== config.weekday) {
-    start.setDate(start.getDate() + 1);
+  for (let i = 0; i < 7; i++) {
+    if (getEasternParts(candidate).weekday === config.weekday) break;
+    candidate = addEasternDays(candidate, 1);
+    parts = getEasternParts(candidate);
+    candidate = easternToUtc(
+      parts.year,
+      parts.month,
+      parts.day,
+      config.hour,
+      config.minute,
+    );
   }
 
-  return start;
+  const minTime = after.getTime() + 7 * 24 * 60 * 60 * 1000;
+  while (candidate.getTime() < minTime) {
+    candidate = addEasternDays(candidate, 7);
+    parts = getEasternParts(candidate);
+    candidate = easternToUtc(
+      parts.year,
+      parts.month,
+      parts.day,
+      config.hour,
+      config.minute,
+    );
+  }
+
+  return candidate;
 }
 
 export function addWeeks(date: Date, weeks: number): Date {
-  const next = new Date(date);
-  next.setDate(next.getDate() + weeks * 7);
-  return next;
+  return addEasternDays(date, weeks * 7);
 }
 
 export async function createPackageSessionsForAssessment(

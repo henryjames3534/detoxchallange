@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "./Button";
+import { getEasternDateInputValue } from "@/lib/timezone";
 import type { PersonalInfo } from "@/lib/types";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
@@ -54,7 +55,7 @@ export function PersonalInfoForm({
     resolver: zodResolver(schema),
     defaultValues: {
       unitSystem: "imperial",
-      testDate: new Date().toISOString().split("T")[0],
+      testDate: getEasternDateInputValue(),
       ...defaultValues,
     },
   });
