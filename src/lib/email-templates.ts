@@ -1,23 +1,49 @@
-import { readFileSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import type { ChallengeResults } from "@/lib/types";
 import { getRecommendedPackage } from "@/lib/packages";
+import { envOr } from "@/lib/env";
 import {
   formatCompletedAtEastern,
   formatSessionWhenEastern,
 } from "@/lib/timezone";
-const TEMPLATE_DIR = path.join(process.cwd(), "email-templates");
+
 const THANK_YOU_FILE = "email-template.html";
 const DOCTOR_NOTIFICATION_FILE = "doctor-notification.html";
 const INVOICE_FILE = "invoice-template.html";
 
-function getContactEmail() {
-  return process.env.DOCTOR_EMAIL ?? "acuactiv@gmail.com";
+const moduleDir = path.dirname(fileURLToPath(import.meta.url));
+
+function resolveTemplatePath(filename: string): string {
+  const candidates = [
+    path.join(process.cwd(), "email-templates", filename),
+    path.join(moduleDir, "..", "..", "email-templates", filename),
+    path.join(moduleDir, "..", "..", "..", "email-templates", filename),
+  ];
+
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) return candidate;
+  }
+
+  throw new Error(
+    `Email template "${filename}" not found. Checked: ${candidates.join(", ")}`,
+  );
 }
 
 function loadTemplate(filename: string) {
-  const filePath = path.join(TEMPLATE_DIR, filename);
-  return readFileSync(filePath, "utf-8");
+  return readFileSync(resolveTemplatePath(filename), "utf-8");
+}
+
+export function emailTemplatesAvailable(): boolean {
+  try {
+    loadTemplate(THANK_YOU_FILE);
+    loadTemplate(DOCTOR_NOTIFICATION_FILE);
+    loadTemplate(INVOICE_FILE);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function renderTemplate(
@@ -29,6 +55,10 @@ function renderTemplate(
       out.replaceAll(`{{${key}}}`, String(value)),
     html,
   );
+}
+
+function getContactEmail() {
+  return envOr("DOCTOR_EMAIL", "acuactiv@gmail.com");
 }
 
 export function buildChallengeThankYouEmail(results: ChallengeResults) {
@@ -48,12 +78,13 @@ export function buildChallengeThankYouEmail(results: ChallengeResults) {
     packageNumber: pkg.package,
     packageSessions: pkg.sessions,
     completedAt,
-    clinicName: process.env.CLINIC_NAME ?? "AcuActiv",
+    clinicName: envOr("CLINIC_NAME", "AcuActiv"),
   });
 
-  const subject =
-    process.env.CHALLENGE_THANK_YOU_SUBJECT ??
-    "Thank you for completing the AcuActiv Detox Challenge";
+  const subject = envOr(
+    "CHALLENGE_THANK_YOU_SUBJECT",
+    "Thank you for completing the AcuActiv Detox Challenge",
+  );
 
   const text = `Dear ${patientName}, thank you for completing the AcuActiv Detox Challenge. Score: ${results.grandTotal}/${results.maxTotal} (${results.toxicLevelPercent.toFixed(1)}%). Recommended Package ${pkg.package}.`;
 
@@ -102,28 +133,24 @@ export function buildSessionInvoiceEmail(
   clinicName: string,
   options?: { sessionLabel?: string; description?: string },
 ) {
-  const sessionWhen = formatSessionWhenEastern(sessionDate);
-  const amountFormatted = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount);
-  const sessionLabel = options?.sessionLabel ?? "Detox treatment session";
+  const when = formatSessionWhenEastern(sessionDate);
+  const sessionLabel = options?.sessionLabel ?? "Detox session";
   const description =
-    options?.description ?? `AcuActiv detox session — ${sessionWhen}`;
+    options?.description ?? `AcuActiv ${sessionLabel} — ${when}`;
 
   const html = renderTemplate(loadTemplate(INVOICE_FILE), {
     patientName,
     invoiceNumber,
-    sessionWhen,
-    amountFormatted,
+    amount: amount.toFixed(2),
     sessionLabel,
+    sessionWhen: when,
     description,
     clinicName,
     contactEmail: getContactEmail(),
   });
 
-  const subject = `Invoice ${invoiceNumber} — ${clinicName} session`;
-  const text = `Dear ${patientName}, your invoice ${invoiceNumber} for ${amountFormatted} is due for your session on ${sessionWhen}. Contact ${getContactEmail()} or (888) 770-6887.`;
+  const subject = `Invoice ${invoiceNumber} — ${clinicName}`;
+  const text = `Invoice ${invoiceNumber} for ${patientName}: $${amount.toFixed(2)}. ${description}`;
 
   return { subject, html, text };
 }

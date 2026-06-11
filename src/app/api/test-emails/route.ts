@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import nodemailer from "nodemailer";
 import {
   buildDoctorSessionReminderEmail,
   buildSessionReminderEmail,
   getDoctorNotificationEmail,
   isSmtpConfigured,
   sendEmail,
+  verifySmtpConnection,
 } from "@/lib/email";
 import {
   buildChallengeThankYouEmail,
@@ -13,9 +13,10 @@ import {
   buildSessionInvoiceEmail,
 } from "@/lib/email-templates";
 import type { ChallengeResults } from "@/lib/types";
+import { env } from "@/lib/env";
 
 function isAuthorized(request: Request) {
-  const secret = process.env.CRON_SECRET;
+  const secret = env("CRON_SECRET");
   if (!secret) return false;
   const auth = request.headers.get("authorization");
   return auth === `Bearer ${secret}`;
@@ -57,38 +58,6 @@ function sampleResults(): ChallengeResults {
   };
 }
 
-async function verifySmtpConnection() {
-  const host = process.env.SMTP_HOST;
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS?.replace(/\s/g, "");
-  const port = Number(process.env.SMTP_PORT ?? 587);
-
-  if (!host || !user || !pass) {
-    return { ok: false, error: "SMTP env vars missing" };
-  }
-
-  const transporter = nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465,
-    requireTLS: port === 587,
-    auth: { user, pass },
-    connectionTimeout: 15_000,
-    greetingTimeout: 15_000,
-    socketTimeout: 20_000,
-  });
-
-  try {
-    await transporter.verify();
-    return { ok: true };
-  } catch (error) {
-    return {
-      ok: false,
-      error: error instanceof Error ? error.message : String(error),
-    };
-  }
-}
-
 export async function POST(request: Request) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -114,7 +83,7 @@ export async function POST(request: Request) {
   }
 
   const sampleSessionDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
-  const clinicName = process.env.CLINIC_NAME ?? "AcuActiv";
+  const clinicName = env("CLINIC_NAME") ?? "AcuActiv";
   const patientName = "Test Patient";
 
   const tests: Array<{ name: string; send: () => Promise<void> }> = [
@@ -191,7 +160,7 @@ export async function POST(request: Request) {
         const email = buildSessionInvoiceEmail(
           patientName,
           "INV-TEST-001",
-          Number(process.env.PORTAL_SESSION_PRICE ?? 150),
+          Number(env("PORTAL_SESSION_PRICE") ?? "150"),
           sampleSessionDate,
           clinicName,
         );
@@ -241,10 +210,10 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     smtpConfigured: isSmtpConfigured(),
-    smtpHost: process.env.SMTP_HOST ?? null,
-    smtpUser: process.env.SMTP_USER ?? null,
-    smtpPort: process.env.SMTP_PORT ?? "587",
-    smtpFrom: process.env.SMTP_FROM ?? null,
+    smtpHost: env("SMTP_HOST") ?? null,
+    smtpUser: env("SMTP_USER") ?? null,
+    smtpPort: env("SMTP_PORT") ?? "587",
+    smtpFrom: env("SMTP_FROM") ?? null,
     doctorEmail: getDoctorNotificationEmail(),
     smtpVerify,
   });

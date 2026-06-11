@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { env, envOr } from "@/lib/env";
 import { formatSessionWhenEastern } from "@/lib/timezone";
 
 interface SendEmailOptions {
@@ -8,63 +9,103 @@ interface SendEmailOptions {
   text?: string;
 }
 
-function getTransporter() {
-  const host = process.env.SMTP_HOST;
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS?.replace(/\s/g, "");
+function getSmtpConfig() {
+  const host = env("SMTP_HOST");
+  const user = env("SMTP_USER");
+  const pass = env("SMTP_PASS")?.replace(/\s/g, "");
+  const port = Number(env("SMTP_PORT") ?? "587");
+
   if (!host || !user || !pass) return null;
 
-  const port = Number(process.env.SMTP_PORT ?? 587);
+  return { host, user, pass, port };
+}
+
+function getTransporter() {
+  const config = getSmtpConfig();
+  if (!config) return null;
 
   return nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465,
-    requireTLS: port === 587,
-    auth: { user, pass },
-    connectionTimeout: 15_000,
-    greetingTimeout: 15_000,
-    socketTimeout: 20_000,
+    host: config.host,
+    port: config.port,
+    secure: config.port === 465,
+    requireTLS: config.port === 587,
+    auth: { user: config.user, pass: config.pass },
+    connectionTimeout: 20_000,
+    greetingTimeout: 20_000,
+    socketTimeout: 25_000,
   });
 }
 
 export function getDoctorNotificationEmail() {
-  return (
-    process.env.DOCTOR_EMAIL ??
-    process.env.DOCTOR_NOTIFICATION_EMAIL ??
-    "acuactiv@gmail.com"
+  return envOr(
+    "DOCTOR_EMAIL",
+    envOr("DOCTOR_NOTIFICATION_EMAIL", "acuactiv@gmail.com"),
   );
 }
 
 export function isSmtpConfigured() {
-  return Boolean(
-    process.env.SMTP_HOST &&
-      process.env.SMTP_USER &&
-      process.env.SMTP_PASS?.replace(/\s/g, ""),
-  );
+  return getSmtpConfig() !== null;
 }
 
 function getFromAddress() {
-  if (process.env.SMTP_FROM) return process.env.SMTP_FROM;
-  const user = process.env.SMTP_USER;
+  const from = env("SMTP_FROM");
+  if (from) return from;
+  const user = env("SMTP_USER");
   if (user) return `AcuActiv <${user}>`;
   return "AcuActiv Detox <noreply@acuactiv.com>";
 }
 
+export async function verifySmtpConnection() {
+  const config = getSmtpConfig();
+  if (!config) {
+    return { ok: false as const, error: "SMTP env vars missing or empty" };
+  }
+
+  const transporter = getTransporter();
+  if (!transporter) {
+    return { ok: false as const, error: "Could not create SMTP transporter" };
+  }
+
+  try {
+    await transporter.verify();
+    return { ok: true as const };
+  } catch (error) {
+    return {
+      ok: false as const,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
 export async function sendEmail({ to, subject, html, text }: SendEmailOptions) {
+  const recipient = to?.trim();
+  if (!recipient) {
+    throw new Error("Email recipient is empty");
+  }
+
   const from = getFromAddress();
   const transporter = getTransporter();
 
   if (!transporter) {
-    console.info("[email:dev]", { to, subject, text: text ?? html.slice(0, 200) });
+    console.info("[email:dev]", {
+      to: recipient,
+      subject,
+      text: text ?? html.slice(0, 200),
+    });
     return { ok: true as const, dev: true as const };
   }
 
   try {
-    await transporter.sendMail({ from, to, subject, html, text });
+    await transporter.sendMail({
+      from,
+      to: recipient,
+      subject,
+      html,
+      text,
+    });
     return { ok: true as const, dev: false as const };
   } catch (error) {
-    console.error("[email:error]", { to, subject, error });
+    console.error("[email:error]", { to: recipient, subject, error });
     throw error;
   }
 }
